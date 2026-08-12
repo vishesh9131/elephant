@@ -66,7 +66,7 @@ button { color: inherit; }
 .hero__meta span { padding-right: 20px; margin-right: 20px; border-right: 1px solid var(--line); }
 .hero__meta span:last-child { border: 0; }
 .hero__art { height: 470px; display: grid; place-items: center; overflow: hidden; }
-.hero__art img { width: 104%; max-width: 610px; display: block; mix-blend-mode: multiply; transform: translate(-1%, -2%); }
+.hero__art img { width: 104%; max-width: 610px; display: block; mix-blend-mode: multiply; transform: translate(-1%, -8%); }
 
 .pulse-panel { background: var(--taupe); border: 1px solid rgba(17,17,15,.06); border-radius: 24px; padding: 38px 38px 28px; }
 .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
@@ -180,7 +180,7 @@ button { color: inherit; }
   .button { width: 100%; }
   .hero__meta { flex-wrap: wrap; line-height: 2.5; margin-top: 28px; }
   .hero__art { height: 300px; margin-top: 18px; }
-  .hero__art img { width: 128%; max-width: none; }
+  .hero__art img { width: 128%; max-width: none; transform: translate(-1%, -17%); }
   .pulse-panel { width: calc(100% - 20px); padding: 28px 18px 20px; border-radius: 20px; }
   .panel-heading { display: block; }
   .pulse-legend { padding-top: 20px; }
