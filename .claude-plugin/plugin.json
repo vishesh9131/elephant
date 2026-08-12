@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "elephant",
+  "displayName": "Elephant",
+  "version": "0.2.0",
+  "description": "Automatically carry coding sessions between AI harnesses.",
+  "author": {
+    "name": "Vishesh Yadav"
+  },
+  "homepage": "https://github.com/vishesh9131/elephant",
+  "repository": "https://github.com/vishesh9131/elephant",
+  "license": "MIT",
+  "keywords": ["handoff", "context", "continuity", "coding-agents"],
+  "hooks": "./hooks/claude-hooks.json"
+}

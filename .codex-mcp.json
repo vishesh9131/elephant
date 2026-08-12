@@ -1,0 +1,6 @@
+{
+  "memory": {
+    "command": "python3",
+    "args": ["${PLUGIN_ROOT}/mcp/server.py"]
+  }
+}

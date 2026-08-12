@@ -1,0 +1,16 @@
+{
+  "name": "elephant",
+  "version": "0.2.0",
+  "description": "Carry coding sessions between AI harnesses.",
+  "author": {
+    "name": "Vishesh Yadav"
+  },
+  "homepage": "https://github.com/vishesh9131/elephant",
+  "repository": "https://github.com/vishesh9131/elephant",
+  "license": "MIT",
+  "category": "productivity",
+  "keywords": ["handoff", "context", "continuity", "coding-agents"],
+  "skills": "skills/",
+  "hooks": "hooks/copilot-hooks.json",
+  "mcpServers": ".mcp.json"
+}

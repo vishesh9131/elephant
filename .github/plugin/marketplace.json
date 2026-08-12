@@ -1,0 +1,22 @@
+{
+  "name": "elephant",
+  "description": "Coding-session continuity across AI harnesses.",
+  "owner": {
+    "name": "Vishesh Yadav"
+  },
+  "metadata": {
+    "description": "Local-first continuity for coding agents.",
+    "version": "0.2.0"
+  },
+  "plugins": [
+    {
+      "name": "elephant",
+      "description": "Recover work from Claude Code, Codex, Hermes, and other agents.",
+      "source": "./",
+      "category": "productivity",
+      "tags": ["handoff", "context", "continuity"],
+      "skills": "skills/",
+      "hooks": "hooks/copilot-hooks.json"
+    }
+  ]
+}

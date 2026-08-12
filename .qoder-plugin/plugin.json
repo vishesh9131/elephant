@@ -1,0 +1,13 @@
+{
+  "name": "elephant",
+  "version": "0.2.0",
+  "description": "Carry coding sessions between AI harnesses.",
+  "author": {
+    "name": "Vishesh Yadav"
+  },
+  "repository": "https://github.com/vishesh9131/elephant",
+  "keywords": ["handoff", "context", "continuity"],
+  "skills": "./skills/",
+  "rules": "./.qoder/rules/",
+  "hooks": "./hooks/qoder-hooks.json"
+}

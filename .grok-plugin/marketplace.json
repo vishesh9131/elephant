@@ -1,0 +1,16 @@
+{
+  "name": "elephant",
+  "description": "Coding-session continuity across AI harnesses.",
+  "owner": {
+    "name": "Vishesh Yadav"
+  },
+  "plugins": [
+    {
+      "name": "elephant",
+      "description": "Recover and continue work from another coding agent.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
+

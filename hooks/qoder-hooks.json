@@ -1,0 +1,36 @@
+{
+  "_comment": "Reference template. Replace ELEPHANT_DIR with this plugin checkout path.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ELEPHANT_DIR/hooks/capture.py qoder session.started"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ELEPHANT_DIR/hooks/capture.py qoder user.prompted"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ELEPHANT_DIR/hooks/capture.py qoder tool.completed"
+          }
+        ]
+      }
+    ]
+  }
+}
+

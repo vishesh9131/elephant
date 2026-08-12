@@ -1,0 +1,32 @@
+{
+  "name": "elephant",
+  "version": "0.2.0",
+  "description": "Automatically carry coding sessions between AI harnesses.",
+  "author": {
+    "name": "Vishesh Yadav"
+  },
+  "homepage": "https://github.com/vishesh9131/elephant",
+  "repository": "https://github.com/vishesh9131/elephant",
+  "license": "MIT",
+  "keywords": ["handoff", "context", "continuity", "coding-agents"],
+  "skills": "./skills/",
+  "hooks": "./hooks/codex-hooks.json",
+  "mcpServers": "./.codex-mcp.json",
+  "interface": {
+    "displayName": "Elephant",
+    "shortDescription": "Continue sessions across coding agents",
+    "longDescription": "Elephant records coding-agent work automatically and restores a verified recovery capsule when another harness takes over.",
+    "developerName": "Vishesh Yadav",
+    "category": "Productivity",
+    "capabilities": ["Lifecycle hooks", "Local memory", "Cross-agent handoff"],
+    "websiteURL": "https://github.com/vishesh9131/elephant",
+    "privacyPolicyURL": "https://github.com/vishesh9131/elephant/blob/main/docs/privacy.md",
+    "termsOfServiceURL": "https://github.com/vishesh9131/elephant/blob/main/docs/terms.md",
+    "defaultPrompt": [
+      "Elephant, resume my previous coding session.",
+      "Recover the latest Elephant handoff.",
+      "Show what the previous coding agent completed."
+    ],
+    "brandColor": "#6B705C"
+  }
+}

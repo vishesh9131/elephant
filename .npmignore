@@ -1,0 +1,10 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+**/*.pyc
+**/*.pyo
+*.egg-info/
+tests/
+.pytest_cache/
+.aware/

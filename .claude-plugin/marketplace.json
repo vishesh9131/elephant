@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "elephant",
+  "description": "Session continuity for coding agents.",
+  "owner": {
+    "name": "Vishesh Yadav"
+  },
+  "metadata": {
+    "description": "Local-first continuity for coding agents.",
+    "version": "0.2.0"
+  },
+  "plugins": [
+    {
+      "name": "elephant",
+      "description": "Resume Claude Code work in Codex, Hermes, or another harness.",
+      "source": "./",
+      "category": "productivity",
+      "tags": ["handoff", "context", "continuity", "coding-agents"]
+    }
+  ]
+}

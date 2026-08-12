@@ -1,0 +1,47 @@
+{
+  "name": "elephant-agent-handoff",
+  "version": "0.2.0",
+  "description": "Carry coding sessions between AI harnesses.",
+  "keywords": ["opencode-plugin", "pi-package", "agent-skills", "handoff", "context"],
+  "author": {
+    "name": "Vishesh Yadav"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/vishesh9131/elephant#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vishesh9131/elephant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vishesh9131/elephant/issues"
+  },
+  "main": "./.opencode/plugins/elephant.mjs",
+  "exports": {
+    ".": "./.opencode/plugins/elephant.mjs",
+    "./plugin": "./.opencode/plugins/elephant.mjs"
+  },
+  "files": [
+    "AGENTS.md",
+    "hooks/*.json",
+    "hooks/*.py",
+    "mcp/*.py",
+    "skills/**/*.md",
+    "skills/**/*.py",
+    "skills/**/*.yaml",
+    "src/**/*.py",
+    ".opencode/plugins/*.mjs",
+    "pi-extension/*.js",
+    "pi-extension/package.json"
+  ],
+  "scripts": {
+    "test": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+    "conformance": "PYTHONPATH=src python3 scripts/conformance.py"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "pi": {
+    "extensions": ["./pi-extension/index.js"],
+    "skills": ["./skills"]
+  }
+}
