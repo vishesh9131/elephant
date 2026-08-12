@@ -172,8 +172,9 @@ class PluginContractTests(unittest.TestCase):
             ".agents/plugins/marketplace.json",
             ".devin-plugin/plugin.json",
             ".github/plugin/marketplace.json",
-            ".github/plugin/plugin.json",
             ".grok-plugin/marketplace.json",
+            "hooks/hooks.json",
+            "mcp.json",
             ".qoder-plugin/plugin.json",
             "gemini-extension.json",
             "hooks/claude-hooks.json",
@@ -200,7 +201,7 @@ class PluginContractTests(unittest.TestCase):
             ".cursor/rules/elephant.mdc",
             ".devin-plugin/plugin.json",
             ".github/copilot-instructions.md",
-            ".github/plugin/plugin.json",
+            ".github/plugin/marketplace.json",
             ".grok-plugin/marketplace.json",
             ".kiro/steering/elephant.md",
             ".openclaw/skills/resume/SKILL.md",
@@ -209,11 +210,49 @@ class PluginContractTests(unittest.TestCase):
             ".qoder/rules/elephant.md",
             ".windsurf/rules/elephant.md",
             "gemini-extension.json",
+            "hooks/hooks.json",
+            "mcp.json",
             "pi-extension/index.js",
             "plugin.yaml",
         )
         missing = [relative for relative in surfaces if not (root / relative).is_file()]
         self.assertEqual(missing, [])
+
+    def test_agent_plugins_v1_manifest_uses_fixed_component_locations(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        with (root / "plugin.json").open() as stream:
+            manifest = json.load(stream)
+        self.assertEqual(
+            manifest["$schema"],
+            "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        )
+        self.assertLessEqual(
+            set(manifest),
+            {
+                "$schema",
+                "name",
+                "version",
+                "description",
+                "author",
+                "homepage",
+                "repository",
+                "license",
+                "keywords",
+                "extensions",
+            },
+        )
+        self.assertFalse((root / ".github/plugin/plugin.json").exists())
+        with (root / "mcp.json").open() as stream:
+            mcp = json.load(stream)
+        self.assertEqual(
+            mcp["$schema"],
+            "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        )
+        self.assertEqual(mcp["mcpServers"]["memory"]["type"], "stdio")
+        self.assertEqual(
+            (root / "hooks/hooks.json").read_text(),
+            (root / "hooks/copilot-hooks.json").read_text(),
+        )
 
 
 if __name__ == "__main__":

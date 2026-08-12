@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-08-13
+
+- Adopt the Agent Plugins v1.0.0 root manifest and fixed component locations.
+- Add a portable `mcp.json` while retaining native harness MCP configurations.
+- Move Copilot hook discovery to `hooks/hooks.json` without changing the nine
+  lifecycle handlers.
+
 ## 0.2.0 - 2026-08-13
 
 - Add native lifecycle capture for Claude Code, Codex, Hermes, OpenCode, Pi,

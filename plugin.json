@@ -1,16 +1,20 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "elephant",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Carry coding sessions between AI harnesses.",
   "author": {
-    "name": "Vishesh Yadav"
+    "name": "Vishesh Yadav",
+    "url": "https://github.com/vishesh9131"
   },
-  "homepage": "https://github.com/vishesh9131/elephant",
+  "homepage": "https://vishesh9131.github.io/elephant/",
   "repository": "https://github.com/vishesh9131/elephant",
   "license": "MIT",
-  "category": "productivity",
-  "keywords": ["handoff", "context", "continuity", "coding-agents"],
-  "skills": "skills/",
-  "hooks": "hooks/copilot-hooks.json",
-  "mcpServers": ".mcp.json"
+  "keywords": [
+    "context-handoff",
+    "agent-memory",
+    "coding-agents",
+    "session-continuity",
+    "productivity"
+  ]
 }

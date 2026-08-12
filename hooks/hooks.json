@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot session.started",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot session.started",
+        "timeoutSec": 10
+      }
+    ],
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot user.prompted",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot user.prompted",
+        "timeoutSec": 10
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot tool.started",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot tool.started",
+        "timeoutSec": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot tool.completed",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot tool.completed",
+        "timeoutSec": 10
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot tool.failed",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot tool.failed",
+        "timeoutSec": 10
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot model.responded",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot model.responded",
+        "timeoutSec": 10
+      }
+    ],
+    "errorOccurred": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot model.failed",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot model.failed",
+        "timeoutSec": 10
+      }
+    ],
+    "preCompact": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot context.compacting",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot context.compacting",
+        "timeoutSec": 10
+      }
+    ],
+    "sessionEnd": [
+      {
+        "type": "command",
+        "bash": "python3 \"${PLUGIN_ROOT}/hooks/capture.py\" github-copilot session.ended",
+        "powershell": "python \"${PLUGIN_ROOT}\\hooks\\capture.py\" github-copilot session.ended",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
