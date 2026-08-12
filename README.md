@@ -21,6 +21,10 @@
   <sub>Automatic, local-first session continuity across AI coding harnesses.</sub>
 </p>
 
+<p align="center">
+  <a href="https://vishesh9131.github.io/elephant/"><strong>Visit the Elephant website →</strong></a>
+</p>
+
 ---
 
 You know the ritual.
