@@ -41,10 +41,10 @@ button { color: inherit; }
 }
 .brand { display: inline-flex; align-items: center; gap: 11px; width: max-content; font-weight: 500; font-size: 18px; }
 .brand__mark { width: 42px; height: 36px; display: grid; place-items: center; overflow: hidden; }
-.brand__mark img { width: 42px; height: 30px; object-fit: contain; filter: invert(1) grayscale(1) contrast(1.55); mix-blend-mode: multiply; }
+.brand__mark img { width: 42px; height: auto; display: block; mix-blend-mode: multiply; }
 .brand--compact { font-size: 14px; gap: 8px; }
 .brand--compact .brand__mark { width: 32px; height: 28px; }
-.brand--compact .brand__mark img { width: 32px; height: 24px; }
+.brand--compact .brand__mark img { width: 32px; height: auto; }
 .site-nav { display: flex; align-items: center; gap: 35px; font-size: 13px; }
 .site-nav a, .github-chip { transition: opacity 160ms ease; }
 .site-nav a:hover, .github-chip:hover { opacity: .55; }
@@ -66,7 +66,7 @@ button { color: inherit; }
 .hero__meta span { padding-right: 20px; margin-right: 20px; border-right: 1px solid var(--line); }
 .hero__meta span:last-child { border: 0; }
 .hero__art { height: 470px; display: grid; place-items: center; overflow: hidden; }
-.hero__art img { width: 104%; max-width: 720px; filter: invert(1) grayscale(1) contrast(1.38); mix-blend-mode: multiply; transform: translate(-1%, 1%); }
+.hero__art img { width: 104%; max-width: 610px; display: block; mix-blend-mode: multiply; transform: translate(-1%, -2%); }
 
 .pulse-panel { background: var(--taupe); border: 1px solid rgba(17,17,15,.06); border-radius: 24px; padding: 38px 38px 28px; }
 .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
@@ -90,7 +90,7 @@ button { color: inherit; }
 .checkpoint { position: absolute; left: 50%; top: 65px; bottom: 18px; width: 1px; background: rgba(17,17,15,.14); display: flex; flex-direction: column; align-items: center; }
 .checkpoint__label { position: absolute; top: -27px; white-space: nowrap; font-size: 11px; font-weight: 500; }
 .checkpoint__mark { position: absolute; top: 77px; width: 68px; height: 68px; border-radius: 50%; background: var(--paper); border: 1px solid rgba(17,17,15,.28); display: grid; place-items: center; overflow: hidden; }
-.checkpoint__mark img { width: 58px; height: 44px; object-fit: contain; filter: invert(1) grayscale(1) contrast(1.55); mix-blend-mode: multiply; }
+.checkpoint__mark img { width: 58px; height: auto; display: block; mix-blend-mode: multiply; }
 .checkpoint small { position: absolute; top: 155px; white-space: nowrap; font-size: 10px; color: var(--smoke); }
 .pulse-timeline { height: 64px; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: start; font-size: 10px; color: var(--smoke); }
 .pulse-timeline span { text-align: center; display: grid; justify-items: center; gap: 3px; }

@@ -1,58 +1,43 @@
-# Elephant landing page design QA
+# Design QA — canonical Elephant artwork
 
-**Evidence**
+- Source visual truth: `/Users/visheshyadav/Downloads/Group 197.png`
+- Rendered desktop evidence: `site/implementation-desktop.png`
+- Rendered mobile evidence: `site/implementation-mobile.png`
+- Source pixels: 2994 × 2994, sRGB, RGBA
+- Desktop capture: 1440 × 3267 pixels at a 1440 × 900 CSS viewport, device scale factor 1
+- Mobile capture: 390 × 3453 pixels at a 390 × 844 CSS viewport, device scale factor 1
+- State: landing page, top route; Codex install tab selected in final full-page captures
 
-- Source visual truth: `design-reference.png` (selected ImageGen option 2), 864 × 1821 px.
-- Desktop implementation: `implementation-desktop.png`, 1425 × 3204 px.
-- Mobile implementation: `implementation-mobile.png`, 375 × 5288 px.
-- Combined full-view comparison: `design-comparison.png`, 1843 × 2112 px.
-- Desktop viewport: 1440 × 1024 CSS px; rendered client width 1425 px; device scale factor 1.
-- Mobile viewport: 390 × 844 CSS px; rendered client width 375 px; device scale factor 1.
-- Density normalization: the comparison page renders source and implementation at equal column widths. The 864 px source normalized to 1425 px is approximately 3004 px tall; the implementation is 3204 px tall. The intentional 6.7% extra height accommodates real per-harness installation tabs and the project footer.
-- State: default light landing page, Claude Code install tab selected.
+## Findings
 
-**Full-view comparison evidence**
+No actionable P0, P1, or P2 differences remain.
 
-- The selected composition is preserved: sparse header, asymmetric two-column hero, dominant elephant artwork, full-width quota pulse panel, harness strip, three-step explanation, handoff payload, privacy band, install console, and compact closing statement.
-- The eggshell/taupe/black palette, thin rules, rounded 20–24 px surfaces, orange-to-violet product accents, Inter light-weight typography, and monospace metadata match the reference design language.
-- The supplied elephant artwork is used in the brand, hero, and checkpoint. The generated quota pulse is a raster product asset rather than a CSS/SVG approximation.
+- Fonts and typography: unchanged from the approved landing page. The artwork replacement does not alter heading hierarchy, wrapping, optical weight, or small-label legibility.
+- Spacing and layout rhythm: the square source is framed inside the existing hero slot without changing the page grid. Desktop and mobile retain their established spacing and have no horizontal overflow.
+- Colors and visual tokens: the original black engraving remains full black. All `invert`, `grayscale`, `contrast`, and brightness-affecting filters were removed. `mix-blend-mode: multiply` only lets the source's white canvas adopt the cream paper color; it does not brighten the black ink.
+- Image quality and asset fidelity: `site/public/elephant.png` and `assets/elephant.png` are byte-for-byte copies of the supplied `Group 197.png` (SHA-256 `9e39c19480534e1b34915c0661104118c83601c642a0ecfe0800865836ea8b32`). The hero, header mark, checkpoint, footer, README, and social preview now use the same canonical source.
+- Copy and content: unchanged.
 
-**Focused region evidence**
+## Comparison evidence
 
-- A separate crop was not required: at the equal-width comparison scale, the hero, quota pulse, payload panel, privacy row, install tabs, and closing CTA remain legible. The dedicated mobile capture provides the alternate responsive state at full resolution.
+- Full-view comparison: the source, 1440-pixel desktop capture, and 390-pixel mobile capture were opened together. The elephant's engraving is crisp and dark at both breakpoints, with no gray wash or glow from the previous asset.
+- Focused region comparison: `site/implementation-hero.png` isolates the desktop hero against the supplied source. The subject, line work, raised trunk, and black tonal density match; the page applies only responsive scale and crop.
 
-**Findings**
+## Interaction and runtime checks
 
-- No actionable P0, P1, or P2 issues remain.
-- [P3] The implementation's supplied elephant source has a slightly bolder, higher-contrast treatment than the generated mock's engraving. This is intentional because the user explicitly asked to use the repository artwork; CSS inversion and multiply blending retain the original subject while fitting the cream canvas.
-- [P3] The live page is slightly taller than the mock after width normalization. The difference comes from real installation instructions for five harnesses and is within the selected editorial rhythm.
+- “Install Elephant” navigates to `#install`.
+- The Codex install tab becomes selected and shows `codex plugin marketplace add vishesh9131/elephant`.
+- Copy transitions to the visible “Copied” state.
+- Browser console: no warnings or errors.
+- Production build and all four Sites hosting tests pass.
 
-**Required fidelity surfaces**
+## Comparison history
 
-- Fonts and typography: Inter 300/400/500 is bundled locally; display weight, body hierarchy, small monospace labels, wrapping, and line height follow the mock. No truncation is visible at desktop or mobile.
-- Spacing and layout rhythm: 1280 px desktop shell, asymmetric hero, 24 px feature radius, hairline dividers, dense lower-page sections, and mobile stacking are consistent. Desktop and mobile have no horizontal overflow.
-- Colors and visual tokens: eggshell `#fdfcfa`, taupe `#f5f3f0`, stone `#ebe8e3`, smoke `#706b64`, ink `#11110f`, orange `#ff4704`, and violet `#0447ff` match the selected direction. Accent colors stay inside the product visualization.
-- Image quality and asset fidelity: the supplied 1536 × 1024 elephant artwork and generated 1921 × 819 quota-pulse asset render sharply. No placeholder imagery, custom SVG art, div art, emoji, or fake logos are used.
-- Copy and content: the mock's promise is preserved, while invented package commands were replaced with real Elephant Claude Code, Codex, Hermes, Gemini CLI, and Pi installation instructions.
-- Icons: Phosphor icons provide a consistent restrained outline/filled family for GitHub, copy, terminal, privacy, and CTA affordances.
-- Interaction and accessibility: primary navigation anchors work; the hero CTA scrolls to install; install tabs switch commands and selected state; copy shows success; focus-visible styles, semantic tabs, labels, alt text, reduced motion, and practical mobile targets are present.
+1. Initial P1: the landing page used the older dark-gradient elephant and CSS `invert(1) grayscale(1) contrast(...)`, producing the brightened/washed appearance. Fixed by replacing both canonical assets with the supplied original and deleting the filters.
+2. Initial P2: the first direct replacement rendered too large in the desktop hero because the supplied canvas is square. Fixed by reducing the hero maximum width to 610px and shifting it 2% upward; post-fix desktop and mobile captures preserve the subject without changing surrounding layout.
 
-**Comparison history**
+## Follow-up polish
 
-1. Initial browser pass found a P2 content-direction mismatch: the implementation had borrowed the three-layer section and giant manifesto ending from option 3. Removed both and restored option 2's horizontal three-step explanation and “Different harness. Same momentum.” closing.
-2. Second comparison found P2 density drift below the hero. Reduced section padding and display scales, compressed the payload and privacy bands, and tightened the install/closing regions. Post-fix evidence is `design-comparison.png`; normalized page height is now within 6.7% of the source.
-3. Mobile verification found no clipping or horizontal overflow (`scrollWidth` equals `clientWidth`). Desktop verification found no console warnings/errors from the Elephant page.
-
-**Implementation checklist**
-
-- [x] Selected option 2 translated faithfully.
-- [x] Desktop and mobile layouts verified in-browser.
-- [x] Install tabs, copy control, and primary CTA tested.
-- [x] Production build and static-hosting tests passed.
-- [x] No actionable P0/P1/P2 design issues remain.
-
-**Follow-up polish**
-
-- Consider a future hand-cleaned transparent elephant cutout if the brand later adopts a standardized logo asset.
+None required for this correction.
 
 final result: passed
