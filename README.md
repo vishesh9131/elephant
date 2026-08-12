@@ -1,4 +1,6 @@
-<h1 align="center">🐘</h1>
+<p align="center">
+  <img src="assets/elephant.png" width="520" alt="Elephant, the coding agent that never forgets">
+</p>
 
 <h1 align="center">Elephant</h1>
 
