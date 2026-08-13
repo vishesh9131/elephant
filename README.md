@@ -142,8 +142,9 @@ Send these as two separate prompts inside Claude Code:
 /plugin install elephant@elephant
 ```
 
-Elephant adds lifecycle capture, the local MCP recovery tools, automatic
-startup recovery, and `/elephant:resume`.
+Elephant adds lifecycle capture, local MCP recovery tools, automatic startup
+recovery, and namespaced commands such as `/elephant:memorize`,
+`/elephant:resume`, and `/elephant:help`.
 
 ### Codex
 
@@ -168,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.2.1
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.3.0
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -177,11 +178,11 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.2.1
+pi install git:github.com/vishesh9131/elephant@v0.3.0
 ```
 
-Requires Node.js 22.19+. Pi loads the native JavaScript extension, `/resume`,
-and `skill:resume`.
+Requires Node.js 22.19+. Pi loads the native JavaScript extension,
+`/elephant <command>`, `/resume`, and the Elephant skills.
 
 ### Hermes Agent
 
@@ -190,7 +191,7 @@ hermes plugins install vishesh9131/elephant --enable
 ```
 
 Restart Hermes after installing. Elephant registers native lifecycle hooks, the
-`elephant_recover` tool, the `resume` skill, and `/elephant`.
+recovery tools, both Elephant skills, and `/elephant <command>`.
 
 Why `/elephant` instead of `/resume`? Hermes already owns `/resume`. The
 elephant remembers names too.
@@ -246,6 +247,61 @@ Instead of gambling everything on a mythical “99% used” callback, Elephant:
 
 If the quota dies without warning, the memory is already on disk.
 
+## Manual handoff
+
+Automatic journaling stays active, but you can force a handoff whenever you
+want. In Claude Code:
+
+```text
+/elephant:memorize
+```
+
+Then open the same repository in Codex and invoke:
+
+```text
+$elephant resume
+```
+
+Codex receives the freshest capsule, compares it with the live worktree, and
+continues the unfinished objective. Codex exposes installed skills through `$`
+mentions; Claude plugin skills are namespaced as `/elephant:<command>`.
+
+| Command | Purpose |
+|---|---|
+| `memorize` | Force a fresh checkpoint of the current session |
+| `resume [memory-id]` | Recover the latest or a selected memory and continue |
+| `help` | Show the complete command card |
+| `status` | Show protection, freshness, and transcript coverage |
+| `history [limit]` | List recent project memories |
+| `peek [memory-id]` | Preview recovery without continuing |
+| `note <text>` | Preserve an exact high-priority user instruction |
+| `doctor` | Check storage and adapter readiness |
+| `usage` | Show database, transcript, project, and global disk usage |
+| `clean [age] [--keep N] [--yes]` | Preview ancient sessions, then delete only with explicit confirmation |
+| `pin [memory-id]` | Protect a memory's entire source session from cleanup |
+| `unpin [memory-id]` | Remove cleanup protection from a source session |
+| `compact` | Repack SQLite and reclaim unused database pages without deleting memories |
+| `forget <target> --yes` | Permanently delete a capsule, session, or project memory |
+
+Hermes and Pi use `/elephant <command>`. Other skill-capable hosts use
+`$elephant <command>`, their native skill picker, or natural-language invocation.
+
+Cleanup is deliberately two-step. This only previews sessions older than 30
+days, always retains at least the newest 10 sessions, and skips anything pinned:
+
+```text
+/elephant:clean
+```
+
+To apply that preview in Claude Code, explicitly confirm it:
+
+```text
+/elephant:clean 30d --keep 10 --yes
+```
+
+Then `/elephant:compact` can reclaim unused database pages. In Codex, use the
+same arguments after `$elephant`; in Hermes and Pi, use `/elephant`.
+
 ## Local means local
 
 Elephant has no account, cloud, analytics, telemetry, ad network, or mysterious
@@ -253,7 +309,7 @@ Elephant has no account, cloud, analytics, telemetry, ad network, or mysterious
 
 ```text
 ~/.elephant/
-├── elephant.db       # append-only events + recovery capsules
+├── elephant.db       # events, recovery capsules, and cleanup pins
 └── transcripts/      # optional compressed transcript copies
 ```
 
@@ -274,10 +330,10 @@ When you want to ask directly:
 | Host | Command / skill |
 |---|---|
 | Claude Code | `/elephant:resume` |
-| Codex | `$resume` or ask “resume my previous session” |
-| Pi | `/resume` or `skill:resume` |
-| Hermes | `/elephant` or `plugin:resume` |
-| Other skill-capable hosts | `resume` |
+| Codex | `$elephant resume` |
+| Pi | `/elephant resume` or `/resume` |
+| Hermes | `/elephant resume` |
+| Other skill-capable hosts | invoke the `elephant` skill with `resume` |
 
 Recovery compares the capsule's Git metadata with the live worktree. The files
 on disk win. Elephant remembers the past; it does not overwrite the present.

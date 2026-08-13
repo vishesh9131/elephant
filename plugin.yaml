@@ -1,5 +1,5 @@
 name: elephant
-version: 0.2.1
+version: 0.3.0
 description: Automatic coding-session handoff for Hermes Agent.
 author: Vishesh Yadav
 provides_hooks:
@@ -13,4 +13,5 @@ provides_hooks:
 provides_commands:
   - elephant
 provides_skills:
+  - elephant
   - resume

@@ -3,6 +3,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -14,16 +15,20 @@ def archive_transcript(events: Iterable[Event], data_dir: str | Path) -> dict[st
     history = list(events)
     source = _latest_transcript(history)
     if source is None:
-        return None
-
-    content = _redacted_transcript(source)
+        content = _observed_transcript(history)
+        coverage = "observed"
+        source_path = None
+    else:
+        content = _redacted_transcript(source)
+        coverage = "complete"
+        source_path = str(source)
     digest = hashlib.sha256(content).hexdigest()
     last = history[-1]
     destination = (
         Path(data_dir)
         / "transcripts"
-        / last.project_id
-        / last.session_id
+        / _safe_component(last.project_id)
+        / _safe_component(last.session_id)
         / f"{digest[:16]}.jsonl.gz"
     )
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -36,6 +41,8 @@ def archive_transcript(events: Iterable[Event], data_dir: str | Path) -> dict[st
         "bytes": len(content),
         "format": "jsonl.gz",
         "redacted": True,
+        "coverage": coverage,
+        "source": source_path,
     }
 
 
@@ -62,3 +69,16 @@ def _redacted_transcript(path: Path) -> bytes:
                 output.append(redact_text(stripped))
     return ("\n".join(output) + "\n").encode("utf-8")
 
+
+def _observed_transcript(events: list[Event]) -> bytes:
+    lines = [
+        json.dumps(redact(event.to_dict()), separators=(",", ":"), ensure_ascii=False)
+        for event in events
+    ]
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def _safe_component(value: str) -> str:
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip(".-")[:80] or "session"
+    digest = hashlib.sha256(value.encode()).hexdigest()[:10]
+    return f"{slug}-{digest}"

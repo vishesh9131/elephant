@@ -132,6 +132,7 @@ class SecondaryHarnessConformanceTests(unittest.TestCase):
                 self.assertEqual(len(context.hooks), 7)
                 self.assertIn("elephant_recover", context.tools)
                 self.assertIn("elephant", context.commands)
+                self.assertIn("Elephant commands", context.commands["elephant"]["handler"]("help"))
 
                 common = {"session_id": "hermes-session", "cwd": str(workspace)}
                 context.hooks["on_session_start"](**common)

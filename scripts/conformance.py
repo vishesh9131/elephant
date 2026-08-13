@@ -73,7 +73,7 @@ def main() -> int:
             ["pi", "--mode", "rpc", "--no-session", "--approve", "--offline"],
             environment={**environment, "PI_OFFLINE": "1"},
             input_text='{"id":"commands","type":"get_commands"}\n',
-            expected=('"name":"resume"', '"name":"skill:resume"'),
+            expected=('"name":"elephant"', '"name":"resume"', '"name":"skill:elephant"'),
         )
     else:
         print("CONTRACT Pi (binary unavailable; fake host API exercised)")

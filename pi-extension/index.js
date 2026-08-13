@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const bridge = path.join(pluginRoot, "hooks", "capture.py");
+const commandBridge = path.join(pluginRoot, "hooks", "command.py");
 
 function capture(kind, payload = {}) {
   const input = {
@@ -18,6 +19,26 @@ function capture(kind, payload = {}) {
   });
   if (result.status !== 0 || !result.stdout.trim()) return null;
   try { return JSON.parse(result.stdout); } catch { return null; }
+}
+
+function elephantCommand(rawArgs = "help", ctx = {}) {
+  const trimmed = String(rawArgs || "help").trim();
+  const separator = trimmed.indexOf(" ");
+  const action = separator === -1 ? trimmed : trimmed.slice(0, separator);
+  const args = separator === -1 ? "" : trimmed.slice(separator + 1);
+  const result = spawnSync("python3", [commandBridge], {
+    input: JSON.stringify({
+      action,
+      arguments: args,
+      cwd: ctx?.cwd || process.cwd(),
+      harness: "pi",
+      session_id: sessionId(ctx),
+    }),
+    encoding: "utf8",
+    timeout: 10_000,
+  });
+  if (!result.stdout.trim()) return { ok: false, message: result.stderr || "Elephant command failed." };
+  try { return JSON.parse(result.stdout); } catch { return { ok: false, message: result.stdout }; }
 }
 
 function sessionId(ctx) {
@@ -36,12 +57,27 @@ export default function elephantExtension(pi) {
   let recoveredContext = null;
   let currentSession = "pi-session";
 
+  pi.registerCommand("elephant", {
+    description: "Save, recover, inspect, and manage Elephant memory",
+    handler: async (args, ctx) => {
+      const result = elephantCommand(args, ctx);
+      if (result.ok && result.command === "resume") {
+        pi.sendUserMessage(`${result.message}\n\nContinue the inherited objective now. Inspect the live worktree first and do not repeat completed work.`);
+        return;
+      }
+      ctx?.ui?.notify?.(result.message, result.ok ? "info" : "error");
+    },
+  });
+
   pi.registerCommand("resume", {
     description: "Recover the previous coding-agent session",
     handler: async (_args, ctx) => {
-      const result = capture("session.started", { session_id: sessionId(ctx), cwd: ctx?.cwd });
-      const context = result?.hookSpecificOutput?.additionalContext;
-      ctx?.ui?.notify?.(context || "Elephant has no prior session for this workspace.", "info");
+      const result = elephantCommand("resume", ctx);
+      if (result.ok) {
+        pi.sendUserMessage(`${result.message}\n\nContinue the inherited objective now. Inspect the live worktree first and do not repeat completed work.`);
+      } else {
+        ctx?.ui?.notify?.(result.message, "error");
+      }
     },
   });
 

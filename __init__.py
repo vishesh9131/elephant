@@ -13,8 +13,8 @@ PLUGIN_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PLUGIN_ROOT / "src"))
 
 from elephant.kernel import Elephant  # noqa: E402
+from elephant.commands import CommandRouter  # noqa: E402
 from elephant.plugin_runtime import recovery_context  # noqa: E402
-from elephant.project import project_id  # noqa: E402
 
 
 def _cwd(values: dict[str, Any]) -> str:
@@ -42,18 +42,28 @@ def _recover(cwd: str) -> dict[str, Any]:
 def register(ctx) -> None:
     """Register Elephant's native Hermes hooks, tool, skill, and command."""
     injected_sessions: set[str] = set()
+    active = {"session_id": None, "cwd": os.getcwd()}
 
     def on_session_start(**kwargs):
+        active["session_id"] = str(kwargs.get("session_id") or "hermes-session")
+        active["cwd"] = _cwd(kwargs)
         _capture("on_session_start", kwargs)
 
     def pre_llm_call(**kwargs):
         session_id = str(kwargs.get("session_id") or "unknown-session")
         cwd = _cwd(kwargs)
-        previous = Elephant().journal.latest_capsule(project_id(cwd))
+        active["session_id"] = session_id
+        active["cwd"] = cwd
+        try:
+            previous = Elephant().recover(cwd=cwd)["capsule"]
+        except LookupError:
+            previous = None
         _capture("pre_llm_call", kwargs)
-        if previous and previous.source_session_id != session_id and session_id not in injected_sessions:
+        if previous and previous["source_session_id"] != session_id and session_id not in injected_sessions:
             injected_sessions.add(session_id)
-            return {"context": recovery_context(previous)}
+            from elephant.models import Capsule
+
+            return {"context": recovery_context(Capsule.from_dict(previous))}
         return None
 
     def post_llm_call(**kwargs):
@@ -91,18 +101,22 @@ def register(ctx) -> None:
         },
     }
 
-    def resume(_raw_args: str) -> str:
-        try:
-            packet = _recover(os.getcwd())
-        except Exception as exc:
-            return f"Elephant has no recoverable session here: {exc}"
-        capsule = packet["capsule"]
-        return (
-            f"Elephant recovered {capsule['source_harness']} session "
-            f"{capsule['source_session_id']}.\n"
-            f"Objective: {capsule['objective']}\n"
-            f"State: {capsule['current_state']}"
+    def elephant_command(raw_args: str) -> str:
+        result = CommandRouter().execute(
+            raw_args or "help",
+            cwd=str(active["cwd"]),
+            harness="hermes",
+            session_id=str(active["session_id"]) if active["session_id"] else None,
         )
+        if result.get("ok") and result.get("command") == "resume":
+            inject = getattr(ctx, "inject_message", None)
+            if callable(inject):
+                inject(
+                    f"{result['message']}\n\nContinue the inherited objective now. "
+                    "Inspect the live worktree first and do not repeat completed work."
+                )
+                return "🐘 Memory restored. Continuing in Hermes."
+        return str(result["message"])
 
     ctx.register_tool(
         name="elephant_recover",
@@ -113,9 +127,10 @@ def register(ctx) -> None:
     )
     ctx.register_command(
         "elephant",
-        handler=resume,
-        description="Recover the previous coding-agent session",
+        handler=elephant_command,
+        description="Save, recover, inspect, and manage Elephant session memory",
     )
+    ctx.register_skill("elephant", PLUGIN_ROOT / "skills" / "elephant" / "SKILL.md")
     ctx.register_skill("resume", PLUGIN_ROOT / "skills" / "resume" / "SKILL.md")
     ctx.register_hook("on_session_start", on_session_start)
     ctx.register_hook("pre_llm_call", pre_llm_call)

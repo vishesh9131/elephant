@@ -11,10 +11,10 @@ work. Never pretend the outgoing agent is still available after its quota ends.
 ## Recover a session
 
 1. Determine the current project directory.
-2. Call the plugin-provided `elephant_recover` tool with that directory and the
-   current harness name. If this host loads skills but cannot expose plugin
-   tools, execute the bundled `scripts/recover.py` yourself with the project
-   directory. Never ask the user to open a terminal.
+2. Call the plugin-provided `elephant_command` tool with action `resume`, that
+   directory, and the current harness name. If this host loads skills but cannot
+   expose plugin tools, execute the bundled `scripts/recover.py` yourself with
+   the project directory. Never ask the user to open a terminal.
 3. Compare the capsule's Git head, dirty flag, and modified files with the live
    worktree. Treat the worktree as authoritative when it has changed since the
    capsule.
@@ -30,9 +30,9 @@ Do not reconstruct one from guesses.
 
 Native plugin hooks checkpoint automatically after completed turns and at
 compaction, interruption, quota failure, or session end. If the user explicitly
-asks to save, call the plugin-provided `elephant_checkpoint` tool with the
-recorded session ID and project directory. Hosts without that tool rely on their
-native Elephant lifecycle adapter.
+asks to save, call `elephant_command` with action `memorize` and the project
+directory. Pass the native session ID when the host exposes it; otherwise
+Elephant resolves the newest active project session.
 
 Report the capsule ID. Do not claim an exact quota percentage unless the adapter
 marks that signal as `exact`; most harnesses expose no reliable subscription

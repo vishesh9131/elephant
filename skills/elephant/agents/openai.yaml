@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elephant"
+  short_description: "Carry coding sessions between AI agents"
+  default_prompt: "Use $elephant resume to recover my latest coding session and continue it safely."

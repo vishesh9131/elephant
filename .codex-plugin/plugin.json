@@ -1,6 +1,6 @@
 {
   "name": "elephant",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Automatically carry coding sessions between AI harnesses.",
   "author": {
     "name": "Vishesh Yadav"
@@ -24,6 +24,7 @@
     "termsOfServiceURL": "https://github.com/vishesh9131/elephant/blob/main/docs/terms.md",
     "defaultPrompt": [
       "Elephant, resume my previous coding session.",
+      "Use $elephant memorize to save this session.",
       "Recover the latest Elephant handoff.",
       "Show what the previous coding agent completed."
     ],

@@ -24,6 +24,7 @@ harness hooks into an append-only event stream. Schema version `1` requires:
 
 - `session.*`: started, resumed, interrupted, completed, ended
 - `user.prompted`
+- `user.noted`: an explicit user-authored handoff instruction
 - `model.*`: requested, responded, failed
 - `tool.*`: started, completed, failed
 - `file.*`: read, changed
@@ -47,7 +48,9 @@ hooks, lifecycle hooks, and hard-failure detection.
 ## Recovery capsule
 
 A capsule is a derived, portable view of the journal. It contains the current
-objective, last exchange, recent failures, modified files, Git identity, and a
-short recent-event window. Raw harness transcript formats are deliberately not
-the interchange contract because those formats can change independently.
-
+objective, last exchange, recent failures, modified files, Git identity, exact
+user notes, an event watermark, and a short recent-event window. Raw harness
+transcript formats are deliberately not the interchange contract because those
+formats can change independently. Transcript metadata says `complete` when a
+host transcript was archived and `observed` when Elephant reconstructed the
+archive from captured events.

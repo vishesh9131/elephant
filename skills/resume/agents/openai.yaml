@@ -1,6 +1,6 @@
 interface:
   display_name: "Elephant Resume"
   short_description: "Resume coding sessions across AI harnesses"
-  default_prompt: "Use $resume to recover my last coding session and continue safely."
+  default_prompt: "Use $resume to recover my last coding session and continue safely; use $elephant for the complete command suite."
 policy:
   allow_implicit_invocation: true
