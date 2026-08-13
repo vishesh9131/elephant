@@ -5,7 +5,6 @@ from typing import Any, Mapping
 
 from elephant.kernel import Elephant
 from elephant.models import Capsule
-from elephant.project import project_id
 
 
 def handle_hook(
@@ -19,7 +18,12 @@ def handle_hook(
     cwd = str(payload.get("cwd") or payload.get("working_directory") or Path.cwd())
     elephant = Elephant(database)
     is_start = event_name in {"SessionStart", "session.started"}
-    previous = elephant.journal.latest_capsule(project_id(cwd)) if is_start else None
+    previous = None
+    if is_start:
+        try:
+            previous = Capsule.from_dict(elephant.recover(cwd=cwd)["capsule"])
+        except LookupError:
+            pass
     elephant.capture(harness, event_name, payload, cwd=cwd)
 
     session_id = str(payload.get("session_id") or payload.get("sessionId") or "")
@@ -36,6 +40,7 @@ def handle_hook(
 def recovery_context(capsule: Capsule) -> str:
     files = ", ".join(capsule.modified_files[:20]) or "none recorded"
     failures = "; ".join(capsule.recent_failures[-3:]) or "none recorded"
+    notes = "; ".join(capsule.notes[-3:]) or "none recorded"
     response = (capsule.last_model_response or "none recorded")[-2000:]
     return "\n".join(
         (
@@ -47,6 +52,7 @@ def recovery_context(capsule: Capsule) -> str:
             f"Last agent response: {response}",
             f"Modified files: {files}",
             f"Recent failures: {failures}",
+            f"User notes: {notes}",
             "Verify the live Git worktree, avoid repeating completed work, and continue the objective.",
             "Use the Elephant recovery tool if you need the structured capsule and recent event trail.",
         )

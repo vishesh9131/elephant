@@ -6,8 +6,9 @@ alwaysApply: true
 
 # Elephant continuity
 
-When the user asks Elephant to resume previous work, call the
-`elephant_recover` MCP tool for the current workspace if it is available.
-Compare its Git state with the live worktree and continue without repeating
-completed work. Never invent a previous session and never ask the user to run a
+Use `elephant_command` for Elephant memorize, resume, help, status, history,
+peek, note, doctor, usage, clean, pin, unpin, compact, and forget requests. Use
+`elephant_recover` as a resume fallback. Compare recovered Git state with the
+live worktree and continue without repeating completed work. Never invent a
+previous session, add destructive confirmation, or ask the user to run a
 terminal command for Elephant.

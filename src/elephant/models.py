@@ -24,6 +24,7 @@ class EventKind(StrEnum):
     SESSION_COMPLETED = "session.completed"
     SESSION_ENDED = "session.ended"
     USER_PROMPTED = "user.prompted"
+    USER_NOTED = "user.noted"
     MODEL_REQUESTED = "model.requested"
     MODEL_RESPONDED = "model.responded"
     MODEL_FAILED = "model.failed"
@@ -97,6 +98,8 @@ class Capsule:
     git: Mapping[str, Any]
     transcript: Mapping[str, Any]
     event_count: int
+    notes: tuple[str, ...] = ()
+    event_watermark: int | None = None
     created_at: str = field(default_factory=utc_now)
     capsule_id: str = field(default_factory=lambda: str(uuid4()))
     schema_version: int = 1
@@ -106,6 +109,7 @@ class Capsule:
         data["modified_files"] = list(self.modified_files)
         data["recent_failures"] = list(self.recent_failures)
         data["recent_events"] = list(self.recent_events)
+        data["notes"] = list(self.notes)
         return data
 
     @classmethod
@@ -124,6 +128,12 @@ class Capsule:
             git=dict(data.get("git", {})),
             transcript=dict(data.get("transcript", {})),
             event_count=int(data.get("event_count", 0)),
+            notes=tuple(data.get("notes", ())),
+            event_watermark=(
+                int(data["event_watermark"])
+                if data.get("event_watermark") is not None
+                else None
+            ),
             created_at=str(data.get("created_at", utc_now())),
             capsule_id=str(data.get("capsule_id", uuid4())),
             schema_version=int(data.get("schema_version", 1)),

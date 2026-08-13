@@ -18,6 +18,8 @@ _SENSITIVE_KEY = re.compile(
     r"(?i)(api[_-]?key|access[_-]?token|auth(?:orization)?|client[_-]?secret|"
     r"password|private[_-]?key|refresh[_-]?token|secret)"
 )
+_MAX_TEXT = 100_000
+_MAX_COLLECTION = 1_000
 
 
 def redact_text(value: str) -> str:
@@ -29,6 +31,9 @@ def redact_text(value: str) -> str:
             redacted = pattern.sub(lambda match: f"{match.group(1)}[REDACTED]", redacted)
         else:
             redacted = pattern.sub("[REDACTED]", redacted)
+    if len(redacted) > _MAX_TEXT:
+        omitted = len(redacted) - _MAX_TEXT
+        return f"{redacted[:_MAX_TEXT]}\n[TRUNCATED {omitted} CHARACTERS]"
     return redacted
 
 
@@ -38,12 +43,22 @@ def redact(value: Any) -> Any:
     if isinstance(value, str):
         return redact_text(value)
     if isinstance(value, Mapping):
-        return {
+        items = list(value.items())[:_MAX_COLLECTION]
+        result = {
             str(key): "[REDACTED]" if _SENSITIVE_KEY.search(str(key)) else redact(item)
-            for key, item in value.items()
+            for key, item in items
         }
+        if len(value) > _MAX_COLLECTION:
+            result["_elephant_truncated"] = len(value) - _MAX_COLLECTION
+        return result
     if isinstance(value, list):
-        return [redact(item) for item in value]
+        result = [redact(item) for item in value[:_MAX_COLLECTION]]
+        if len(value) > _MAX_COLLECTION:
+            result.append(f"[TRUNCATED {len(value) - _MAX_COLLECTION} ITEMS]")
+        return result
     if isinstance(value, tuple):
-        return tuple(redact(item) for item in value)
+        result = tuple(redact(item) for item in value[:_MAX_COLLECTION])
+        if len(value) > _MAX_COLLECTION:
+            result += (f"[TRUNCATED {len(value) - _MAX_COLLECTION} ITEMS]",)
+        return result
     return redact_text(str(value))

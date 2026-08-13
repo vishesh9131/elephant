@@ -83,6 +83,7 @@ try {
     on: (name, handler) => handlers.set(name, handler),
     registerCommand: (name, command) => commands.set(name, command),
   });
+  assert(commands.has('elephant'));
   assert(commands.has('resume'));
   const notices = [];
   const piContext = {

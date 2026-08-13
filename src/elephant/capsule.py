@@ -6,6 +6,21 @@ from elephant.models import Capsule, Event, EventKind
 from elephant.project import git_state
 
 
+_CONTROL_PROMPTS = (
+    "/elephant",
+    "/elephant:",
+    "$elephant",
+    "elephant ",
+    "elephant memorize",
+    "elephant resume",
+    "elephant status",
+    "elephant history",
+    "elephant peek",
+    "elephant doctor",
+    "elephant help",
+)
+
+
 def _text(event: Event, *keys: str) -> str | None:
     for key in keys:
         value = event.payload.get(key)
@@ -24,6 +39,7 @@ def build_capsule(events: Iterable[Event], cwd: str) -> Capsule:
         for event in history
         if event.kind == EventKind.USER_PROMPTED
     ]
+    prompts = [value for value in prompts if value and not is_control_prompt(value)]
     responses = [
         _text(event, "response", "message", "text")
         for event in history
@@ -38,6 +54,11 @@ def build_capsule(events: Iterable[Event], cwd: str) -> Capsule:
             EventKind.QUOTA_EXHAUSTED,
             EventKind.SESSION_INTERRUPTED,
         }
+    ]
+    notes = [
+        _text(event, "note", "text")
+        for event in history
+        if event.kind == EventKind.USER_NOTED
     ]
     git = git_state(cwd)
     files = set(git.get("changed_files", ()))
@@ -73,7 +94,14 @@ def build_capsule(events: Iterable[Event], cwd: str) -> Capsule:
         git=git,
         transcript={},
         event_count=len(history),
+        notes=tuple(value for value in notes if value),
+        event_watermark=last.sequence,
     )
+
+
+def is_control_prompt(value: str) -> bool:
+    normalized = " ".join(value.strip().lower().split())
+    return any(normalized.startswith(prefix) for prefix in _CONTROL_PROMPTS)
 
 
 def _current_state(last: Event, response: str | None, files: set[str]) -> str:

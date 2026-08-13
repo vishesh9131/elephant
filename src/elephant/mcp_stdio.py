@@ -6,8 +6,9 @@ import sys
 from pathlib import Path
 from typing import Any, TextIO
 
+from elephant.commands import CommandRouter
 from elephant.kernel import Elephant
-from elephant.project import project_id
+from elephant.models import Capsule
 
 
 class ElephantMCP:
@@ -25,7 +26,7 @@ class ElephantMCP:
                 result = {
                     "protocolVersion": requested or "2025-06-18",
                     "capabilities": {"tools": {"listChanged": False}},
-                    "serverInfo": {"name": "elephant", "version": "0.2.1"},
+                    "serverInfo": {"name": "elephant", "version": "0.3.0"},
                 }
             elif method == "ping":
                 result = {}
@@ -48,6 +49,22 @@ class ElephantMCP:
         }
         return [
             {
+                "name": "elephant_command",
+                "description": "Run an Elephant memory or storage command such as memorize, resume, help, status, history, peek, note, doctor, usage, clean, pin, unpin, compact, or forget.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {"type": "string"},
+                        "arguments": {"type": "string", "default": ""},
+                        "cwd": cwd_property,
+                        "harness": {"type": "string", "default": "mcp"},
+                        "session_id": {"type": "string"},
+                    },
+                    "required": ["action", "cwd"],
+                    "additionalProperties": False,
+                },
+            },
+            {
                 "name": "elephant_recover",
                 "description": "Recover the latest coding-agent handoff for this project.",
                 "inputSchema": {
@@ -55,6 +72,7 @@ class ElephantMCP:
                     "properties": {
                         "cwd": cwd_property,
                         "target_harness": {"type": "string"},
+                        "capsule_id": {"type": "string"},
                     },
                     "required": ["cwd"],
                     "additionalProperties": False,
@@ -69,7 +87,7 @@ class ElephantMCP:
                         "session_id": {"type": "string"},
                         "cwd": cwd_property,
                     },
-                    "required": ["session_id", "cwd"],
+                    "required": ["cwd"],
                     "additionalProperties": False,
                 },
             },
@@ -90,6 +108,7 @@ class ElephantMCP:
                     "type": "object",
                     "properties": {
                         "cwd": cwd_property,
+                        "capsule_id": {"type": "string"},
                         "offset": {"type": "integer", "minimum": 0, "default": 0},
                         "limit": {
                             "type": "integer",
@@ -106,27 +125,35 @@ class ElephantMCP:
 
     def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         try:
-            if name == "elephant_recover":
+            if name == "elephant_command":
+                value = CommandRouter(self.elephant).execute(
+                    str(arguments["action"]),
+                    str(arguments.get("arguments") or ""),
+                    cwd=str(arguments["cwd"]),
+                    harness=str(arguments.get("harness") or "mcp"),
+                    session_id=arguments.get("session_id"),
+                )
+            elif name == "elephant_recover":
                 value = self.elephant.recover(
                     cwd=str(arguments["cwd"]),
                     target_harness=arguments.get("target_harness"),
+                    capsule_id=arguments.get("capsule_id"),
                 )
             elif name == "elephant_checkpoint":
-                value = self.elephant.checkpoint(
-                    str(arguments["session_id"]), cwd=str(arguments["cwd"])
+                value = self.elephant.checkpoint_latest(
+                    session_id=arguments.get("session_id"),
+                    cwd=str(arguments["cwd"]),
                 ).to_dict()
             elif name == "elephant_status":
-                cwd = str(arguments["cwd"])
-                identity = project_id(cwd)
-                capsule = self.elephant.journal.latest_capsule(identity)
-                value = {
-                    "project_id": identity,
-                    "recoverable": capsule is not None,
-                    "capsule": capsule.to_dict() if capsule else None,
-                }
+                value = self.elephant.status(cwd=str(arguments["cwd"]))
             elif name == "elephant_transcript":
                 cwd = str(arguments["cwd"])
-                capsule = self.elephant.journal.latest_capsule(project_id(cwd))
+                capsule = Capsule.from_dict(
+                    self.elephant.recover(
+                        cwd=cwd,
+                        capsule_id=arguments.get("capsule_id"),
+                    )["capsule"]
+                )
                 if not capsule or not capsule.transcript.get("archive"):
                     raise LookupError("no archived transcript exists for this project")
                 with gzip.open(str(capsule.transcript["archive"]), "rt", encoding="utf-8") as stream:

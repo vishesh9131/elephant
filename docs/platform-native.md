@@ -15,11 +15,11 @@ core, and thin native packages rather than a universal user-facing CLI.
 
 | Harness | Package surface | Tier | Current behavior |
 |---|---|---|---|
-| Claude Code | `.claude-plugin`, hooks, MCP, skill, marketplace | Native continuity | Captures prompts/tools/responses, archives transcripts, checkpoints stops/compaction/failure/end, injects recovery on start |
-| Codex | `.codex-plugin`, hooks, MCP, skill, marketplace | Native continuity | Captures lifecycle/tool events, checkpoints completed turns/compaction/end, injects recovery on start |
-| Hermes Agent | `plugin.yaml`, `register(ctx)` hooks/tool/command/skill | Native continuity | Live model turn on Hermes 0.20.0 verified start, prompt, request, response, and end events; recovery command is `/elephant` |
+| Claude Code | `.claude-plugin`, hooks, MCP, skills, commands, marketplace | Native continuity | Captures prompts/tools/responses, archives transcripts, checkpoints stops/compaction/failure/end, injects recovery on start, and exposes `/elephant:<command>` |
+| Codex | `.codex-plugin`, hooks, MCP, skills, marketplace | Native continuity | Captures lifecycle/tool events, checkpoints completed turns/compaction/end, injects recovery on start, and exposes `$elephant <command>` |
+| Hermes Agent | `plugin.yaml`, `register(ctx)` hooks/tool/command/skill | Native continuity | Captures native model turns and exposes the shared router as `/elephant <command>` |
 | OpenCode | JavaScript plugin + skills | Native continuity | Live-loaded on OpenCode 1.4.6; contract covers startup injection, prompts, tools, compaction, failures, idle, and end |
-| Pi | JavaScript extension + skills | Native continuity | Live-loaded on Pi 0.84.1; Pi's RPC runtime reports the `resume` command and `skill:resume` from Elephant |
+| Pi | JavaScript extension + skills | Native continuity | Exposes `/elephant <command>` plus the legacy `/resume` alias and records native lifecycle events |
 | GitHub Copilot CLI | marketplace plugin, hooks, skills | Native recovery | Live model turn on Copilot CLI 1.0.79 verified start, prompt, response, and end hooks; all nine documented hooks are contract-tested |
 | Qoder | plugin manifest, skills, rules, hook template | Native recovery | Skills/rules plus capture when native hooks are enabled |
 | Devin CLI | plugin manifest + skills | Native recovery | Provides the recovery skill; host telemetry adapter is the next conformance target |
@@ -42,6 +42,10 @@ All shells share `~/.elephant/elephant.db` and `~/.elephant/transcripts/` by
 default. A harness-private plugin cache must never become the memory location,
 or another harness would be unable to see it. `ELEPHANT_DATA_DIR` can override
 the shared location for tests or managed deployments.
+
+The shared command router also owns storage policy. Cleanup is project-scoped,
+preview-first, preserves the newest sessions, and excludes pinned sessions.
+Compaction only repacks the shared SQLite database after logical cleanup.
 
 Adding a new harness therefore requires only:
 

@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Local-first continuity for coding agents.",
-    "version": "0.2.1"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "elephant",
       "description": "Recover work from Claude Code, Codex, Hermes, and other agents.",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "source": "./",
       "category": "productivity",
       "tags": ["handoff", "context", "continuity"]
