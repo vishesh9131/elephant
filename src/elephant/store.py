@@ -6,7 +6,7 @@ import sqlite3
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Any, Iterable, Iterator
 
 from elephant.models import Capsule, Event
 
@@ -82,6 +82,20 @@ class Journal:
                 );
                 CREATE INDEX IF NOT EXISTS pins_project
                     ON pins(project_id);
+                CREATE TABLE IF NOT EXISTS labeled_memories (
+                    project_id TEXT NOT NULL,
+                    label TEXT NOT NULL COLLATE NOCASE,
+                    source_session_id TEXT NOT NULL,
+                    source_harness TEXT NOT NULL,
+                    capsule_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    coverage TEXT NOT NULL,
+                    capsule_json TEXT NOT NULL,
+                    transcript_gzip BLOB NOT NULL,
+                    PRIMARY KEY(project_id, label)
+                );
+                CREATE INDEX IF NOT EXISTS labeled_memories_session
+                    ON labeled_memories(project_id, source_session_id);
                 """
             )
 
@@ -298,8 +312,78 @@ class Journal:
             ).fetchall()
         return [Capsule.from_dict(json.loads(row["capsule_json"])) for row in rows]
 
+    def save_labeled_memory(
+        self,
+        label: str,
+        capsule: Capsule,
+        transcript_gzip: bytes,
+        coverage: str,
+    ) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO labeled_memories (
+                    project_id, label, source_session_id, source_harness,
+                    capsule_id, created_at, coverage, capsule_json,
+                    transcript_gzip
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(project_id, label) DO UPDATE SET
+                    source_session_id = excluded.source_session_id,
+                    source_harness = excluded.source_harness,
+                    capsule_id = excluded.capsule_id,
+                    created_at = excluded.created_at,
+                    coverage = excluded.coverage,
+                    capsule_json = excluded.capsule_json,
+                    transcript_gzip = excluded.transcript_gzip
+                """,
+                (
+                    capsule.project_id,
+                    label,
+                    capsule.source_session_id,
+                    capsule.source_harness,
+                    capsule.capsule_id,
+                    capsule.created_at,
+                    coverage,
+                    json.dumps(capsule.to_dict(), sort_keys=True),
+                    transcript_gzip,
+                ),
+            )
+
+    def labeled_memory(self, project_id: str, label: str) -> dict[str, Any] | None:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM labeled_memories WHERE project_id = ? AND label = ?",
+                (project_id, label),
+            ).fetchone()
+        if not row:
+            return None
+        return {
+            "label": str(row["label"]),
+            "source_session_id": str(row["source_session_id"]),
+            "source_harness": str(row["source_harness"]),
+            "capsule_id": str(row["capsule_id"]),
+            "created_at": str(row["created_at"]),
+            "coverage": str(row["coverage"]),
+            "capsule": Capsule.from_dict(json.loads(row["capsule_json"])),
+            "transcript_gzip": bytes(row["transcript_gzip"]),
+        }
+
+    def labels_for_session(self, project_id: str, session_id: str) -> list[str]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT label FROM labeled_memories
+                WHERE project_id = ? AND source_session_id = ?
+                """,
+                (project_id, session_id),
+            ).fetchall()
+        return [str(row["label"]) for row in rows]
+
     def delete_capsule(self, capsule_id: str) -> bool:
         with self.connect() as connection:
+            connection.execute(
+                "DELETE FROM labeled_memories WHERE capsule_id = ?", (capsule_id,)
+            )
             cursor = connection.execute(
                 "DELETE FROM capsules WHERE capsule_id = ?", (capsule_id,)
             )
@@ -328,6 +412,10 @@ class Journal:
                 "DELETE FROM pins WHERE session_id = ? AND project_id = ?",
                 (session_id, project_id),
             )
+            connection.execute(
+                "DELETE FROM labeled_memories WHERE source_session_id = ? AND project_id = ?",
+                (session_id, project_id),
+            )
         return int(event_count), int(capsule_count)
 
     def delete_project(self, project_id: str) -> tuple[int, int]:
@@ -342,6 +430,9 @@ class Journal:
             connection.execute("DELETE FROM capsules WHERE project_id = ?", (project_id,))
             connection.execute("DELETE FROM events WHERE project_id = ?", (project_id,))
             connection.execute("DELETE FROM pins WHERE project_id = ?", (project_id,))
+            connection.execute(
+                "DELETE FROM labeled_memories WHERE project_id = ?", (project_id,)
+            )
         return int(event_count), int(capsule_count)
 
     def compact(self) -> None:

@@ -35,13 +35,13 @@ const installOptions = [
   {
     id: "gemini",
     label: "Gemini CLI",
-    command: "gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.3.0",
+    command: "gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.0",
     note: "Loads Elephant's project context and command skill.",
   },
   {
     id: "pi",
     label: "Pi",
-    command: "pi install git:github.com/vishesh9131/elephant@v0.3.0",
+    command: "pi install git:github.com/vishesh9131/elephant@v0.4.0",
     note: "Requires Node.js 22.19 or newer.",
   },
 ];
@@ -127,7 +127,7 @@ export function App() {
             </AppButton>
           </div>
           <div className="hero__meta" aria-label="Project metadata">
-            <span>V0.3.0</span><span>MIT LICENSE</span><span>LOCAL-FIRST</span>
+            <span>V0.4.0</span><span>MIT LICENSE</span><span>LOCAL-FIRST</span>
           </div>
         </div>
         <div className="hero__art" aria-label="Elephant illustration">
@@ -245,7 +245,7 @@ export function App() {
         <div className="install__heading">
           <p className="section-kicker">GET STARTED</p>
           <h2 id="install-title">Install once.<br />Then forget about it.</h2>
-          <p>Python 3.11+ powers the local kernel. Elephant takes it from there.</p>
+          <p>Python 3.10+ powers the local kernel. Elephant takes it from there.</p>
         </div>
         <div className="install-console">
           <div className="install-tabs" role="tablist" aria-label="Choose a harness">

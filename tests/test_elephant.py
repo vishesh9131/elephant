@@ -61,6 +61,64 @@ class RedactionTests(unittest.TestCase):
 
 
 class HandoffTests(unittest.TestCase):
+    def test_exact_label_survives_quota_failure_and_pulls_full_chat(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transcript = root / "claude-session.jsonl"
+            transcript.write_text(
+                '{"role":"user","content":"Fix token rotation"}\n'
+                '{"role":"assistant","content":"One integration test remains"}\n'
+                '{"role":"user","content":"@Elephant exact auth-handoff"}\n'
+            )
+            elephant = Elephant(root / "elephant.db")
+            common = {
+                "session_id": "claude-exact",
+                "cwd": str(root),
+                "transcript_path": str(transcript),
+            }
+
+            elephant.capture("claude-code", "SessionStart", common, cwd=root)
+            elephant.capture(
+                "claude-code",
+                "UserPromptSubmit",
+                {**common, "prompt": "Fix token rotation"},
+                cwd=root,
+            )
+            elephant.capture(
+                "claude-code",
+                "UserPromptSubmit",
+                {**common, "prompt": "@Elephant exact auth-handoff"},
+                cwd=root,
+            )
+            elephant.capture(
+                "claude-code",
+                "StopFailure",
+                {**common, "failure_type": "rate_limit", "error": "Quota exhausted"},
+                cwd=root,
+            )
+
+            labeled = elephant.journal.labeled_memory(
+                project_id(root), "AUTH-HANDOFF"
+            )
+            self.assertIsNotNone(labeled)
+            Path(labeled["capsule"].transcript["archive"]).unlink()
+
+            pulled = CommandRouter(elephant).execute(
+                "@Elephant pull auth-handoff", cwd=root, harness="codex"
+            )
+            self.assertTrue(pulled["ok"])
+            self.assertEqual(pulled["data"]["source_harness"], "claude-code")
+            self.assertEqual(pulled["data"]["target_harness"], "codex")
+            self.assertEqual(pulled["data"]["coverage"], "complete")
+            self.assertIn("Fix token rotation", pulled["data"]["transcript"])
+            self.assertIn("where you left off in claude-code", pulled["message"])
+            self.assertEqual(
+                pulled["data"]["capsule"]["objective"], "Fix token rotation"
+            )
+            self.assertIn(
+                "Quota exhausted", pulled["data"]["capsule"]["recent_failures"]
+            )
+
     def test_claude_quota_failure_recovers_in_codex(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -433,6 +491,8 @@ class PluginContractTests(unittest.TestCase):
             "plugin.yaml",
             "skills/elephant/SKILL.md",
             "commands/memorize.md",
+            "commands/exact.md",
+            "commands/pull.md",
             "commands/resume.md",
             "commands/help.md",
             "commands/status.md",

@@ -26,7 +26,7 @@ class ElephantMCP:
                 result = {
                     "protocolVersion": requested or "2025-06-18",
                     "capabilities": {"tools": {"listChanged": False}},
-                    "serverInfo": {"name": "elephant", "version": "0.3.0"},
+                    "serverInfo": {"name": "elephant", "version": "0.4.0"},
                 }
             elif method == "ping":
                 result = {}
@@ -50,7 +50,7 @@ class ElephantMCP:
         return [
             {
                 "name": "elephant_command",
-                "description": "Run an Elephant memory or storage command such as memorize, resume, help, status, history, peek, note, doctor, usage, clean, pin, unpin, compact, or forget.",
+                "description": "Run an Elephant memory or storage command such as memorize, exact, pull, resume, help, status, history, peek, note, doctor, usage, clean, pin, unpin, compact, or forget.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

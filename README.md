@@ -127,7 +127,7 @@ agent exposes the same API.
 
 ## Install
 
-Install once in each harness you want to hand work between. Python 3.11+ must
+Install once in each harness you want to hand work between. Python 3.10+ must
 be available as `python3` for the local kernel and lifecycle hooks.
 
 ### Claude Code
@@ -169,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.3.0
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.0
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -178,7 +178,7 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.3.0
+pi install git:github.com/vishesh9131/elephant@v0.4.0
 ```
 
 Requires Node.js 22.19+. Pi loads the native JavaScript extension,
@@ -266,9 +266,17 @@ Codex receives the freshest capsule, compares it with the live worktree, and
 continues the unfinished objective. Codex exposes installed skills through `$`
 mentions; Claude plugin skills are namespaced as `/elephant:<command>`.
 
+For a named, full-chat handoff, use `@Elephant exact auth-fix` before switching
+harnesses, then `@Elephant pull auth-fix` in the new one. The prompt hook saves
+the label before model execution and refreshes it on quota failure. Pull feeds
+the redacted chat to the new harness, identifies the previous harness, and gives
+a short summary without starting work until you ask.
+
 | Command | Purpose |
 |---|---|
 | `memorize` | Force a fresh checkpoint of the current session |
+| `exact <label>` | Save the full redacted chat in SQLite under a durable label |
+| `pull <label>` | Feed a labeled chat to another harness and summarize the handoff |
 | `resume [memory-id]` | Recover the latest or a selected memory and continue |
 | `help` | Show the complete command card |
 | `status` | Show protection, freshness, and transcript coverage |

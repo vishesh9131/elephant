@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from enum import StrEnum
+from enum import Enum
 from typing import Any, Mapping
 from uuid import uuid4
 
@@ -11,13 +11,13 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-class Confidence(StrEnum):
+class Confidence(str, Enum):
     EXACT = "exact"
     ESTIMATED = "estimated"
     UNKNOWN = "unknown"
 
 
-class EventKind(StrEnum):
+class EventKind(str, Enum):
     SESSION_STARTED = "session.started"
     SESSION_RESUMED = "session.resumed"
     SESSION_INTERRUPTED = "session.interrupted"

@@ -7,6 +7,7 @@ from elephant.project import git_state
 
 
 _CONTROL_PROMPTS = (
+    "@elephant",
     "/elephant",
     "/elephant:",
     "$elephant",

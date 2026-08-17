@@ -116,6 +116,17 @@ def register(ctx) -> None:
                     "Inspect the live worktree first and do not repeat completed work."
                 )
                 return "🐘 Memory restored. Continuing in Hermes."
+        if result.get("ok") and result.get("command") == "pull":
+            inject = getattr(ctx, "inject_message", None)
+            if callable(inject):
+                inject(
+                    f"{result['message']}\n\n"
+                    f"[Full redacted chat from {result['data']['source_harness']}]\n"
+                    f"{result['data']['transcript']}\n\n"
+                    "Acknowledge that Elephant told you where the user left off, "
+                    "give a short summary, then wait for the user's next instruction."
+                )
+                return "🐘 Labeled chat restored in Hermes."
         return str(result["message"])
 
     ctx.register_tool(

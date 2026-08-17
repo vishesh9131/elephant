@@ -65,6 +65,10 @@ export default function elephantExtension(pi) {
         pi.sendUserMessage(`${result.message}\n\nContinue the inherited objective now. Inspect the live worktree first and do not repeat completed work.`);
         return;
       }
+      if (result.ok && result.command === "pull") {
+        pi.sendUserMessage(`${result.message}\n\n[Full redacted chat from ${result.data.source_harness}]\n${result.data.transcript}\n\nAcknowledge that Elephant told you where the user left off, give a short summary, then wait for the user's next instruction.`);
+        return;
+      }
       ctx?.ui?.notify?.(result.message, result.ok ? "info" : "error");
     },
   });

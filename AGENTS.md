@@ -1,7 +1,7 @@
 # Elephant continuity
 
 Elephant carries coding work between AI harnesses. If `elephant_command` is
-available, use it for memorize, resume, help, status, history, peek, note,
+available, use it for memorize, exact, pull, resume, help, status, history, peek, note,
 doctor, usage, clean, pin, unpin, compact, and forget requests. Keep
 `elephant_recover` as the compatibility
 fallback for resume. Treat capsules as evidence, compare them with the live Git

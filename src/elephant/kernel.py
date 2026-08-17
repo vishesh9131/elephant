@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
+import gzip
 import os
 from pathlib import Path
+import re
 import shutil
 from typing import Any, Mapping
 from uuid import uuid4
@@ -44,8 +46,20 @@ class Elephant:
             safe = replace(event, payload=redact(event.payload))
             saved = self.journal.append(safe)
             stored.append(saved)
+            label = self._exact_label(saved)
+            if label:
+                try:
+                    capsule = self.exact(
+                        label, cwd=cwd_string, session_id=saved.session_id
+                    )["capsule"]
+                except (LookupError, ValueError):
+                    pass
             if self._checkpoint_worthy(saved):
                 capsule = self.checkpoint(saved.session_id, cwd=cwd_string)
+                for current_label in self.journal.labels_for_session(
+                    identity, saved.session_id
+                ):
+                    self._store_exact(current_label, capsule)
         return stored, capsule
 
     def checkpoint(self, session_id: str, *, cwd: str | Path) -> Capsule:
@@ -170,6 +184,50 @@ class Elephant:
         )
         self.journal.append(event)
         return self.checkpoint(selected, cwd=cwd)
+
+    def exact(
+        self,
+        label: str,
+        *,
+        cwd: str | Path,
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
+        normalized = self._label(label)
+        capsule = self.checkpoint_latest(cwd=cwd, session_id=session_id)
+        existing = self.journal.labeled_memory(capsule.project_id, normalized)
+        if existing and existing["source_session_id"] != capsule.source_session_id:
+            raise ValueError(f"label already belongs to another session: {normalized}")
+        self._store_exact(normalized, capsule)
+        self.journal.pin_session(capsule.project_id, capsule.source_session_id, utc_now())
+        return {
+            "label": normalized,
+            "coverage": str(capsule.transcript.get("coverage") or "unavailable"),
+            "capsule": capsule,
+        }
+
+    def pull(
+        self,
+        label: str,
+        *,
+        cwd: str | Path,
+        target_harness: str | None = None,
+    ) -> dict[str, Any]:
+        normalized = self._label(label)
+        memory = self.journal.labeled_memory(project_id(cwd), normalized)
+        if memory is None:
+            raise LookupError(f"no Elephant label exists for this project: {normalized}")
+        capsule = memory["capsule"]
+        return {
+            "label": memory["label"],
+            "source_harness": memory["source_harness"],
+            "source_session_id": memory["source_session_id"],
+            "target_harness": target_harness,
+            "coverage": memory["coverage"],
+            "capsule": capsule.to_dict(),
+            "transcript": gzip.decompress(memory["transcript_gzip"]).decode(
+                "utf-8", errors="replace"
+            ),
+        }
 
     def doctor(self, *, cwd: str | Path) -> dict[str, Any]:
         status = self.status(cwd=cwd)
@@ -379,6 +437,38 @@ class Elephant:
             suffix = f" with id {capsule_id}" if capsule_id else ""
             raise LookupError(f"no Elephant memory exists{suffix} for this project")
         return capsule
+
+    def _store_exact(self, label: str, capsule: Capsule) -> None:
+        archive = capsule.transcript.get("archive")
+        if not archive:
+            raise LookupError("no archived transcript exists for this session")
+        self.journal.save_labeled_memory(
+            label,
+            capsule,
+            Path(str(archive)).read_bytes(),
+            str(capsule.transcript.get("coverage") or "unavailable"),
+        )
+
+    @staticmethod
+    def _label(value: str) -> str:
+        label = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", label):
+            raise ValueError(
+                "label must be 1-64 letters, numbers, dots, underscores, or hyphens"
+            )
+        return label
+
+    @staticmethod
+    def _exact_label(event: Event) -> str | None:
+        if event.kind != EventKind.USER_PROMPTED:
+            return None
+        prompt = str(event.payload.get("prompt") or event.payload.get("text") or "")
+        match = re.fullmatch(
+            r"\s*(?:@elephant\s+|/elephant(?::|\s+)|\$?elephant\s+)exact\s+(\S+)\s*",
+            prompt,
+            re.IGNORECASE,
+        )
+        return match.group(1) if match else None
 
     def _latest_meaningful_session(
         self, identity: str

@@ -26,6 +26,11 @@ work. Never pretend the outgoing agent is still available after its quota ends.
 If no capsule exists, say that Elephant has no recorded session for this project.
 Do not reconstruct one from guesses.
 
+For an explicitly labeled handoff, call `elephant_command` with action `pull`
+and the requested label instead. Read the returned full redacted transcript,
+say which source harness it came from, summarize where the user left off, and
+wait for the user's next instruction rather than automatically continuing.
+
 ## Checkpoint a session
 
 Native plugin hooks checkpoint automatically after completed turns and at

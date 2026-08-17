@@ -35,6 +35,12 @@ harness hooks into an append-only event stream. Schema version `1` requires:
 Adapters may introduce new dotted event names. Consumers must ignore unknown
 events rather than rejecting the entire session.
 
+`exact <label>` stores a redacted, gzip-compressed transcript snapshot and its
+capsule in SQLite. Native prompt hooks create the label before model execution
+and refresh it on later checkpoints, including quota failures. `pull <label>`
+returns that transcript with its source harness and coverage; consumers must not
+describe `observed` coverage as complete.
+
 ## Confidence
 
 - `exact`: supplied directly by a harness or observed as a hard failure

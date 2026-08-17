@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 - 2026-08-17
+
+- Add durable `exact <label>` full-chat snapshots and cross-harness
+  `pull <label>` recovery, including prompt-hook capture before quota failures.
+- Support Python 3.10 plugin hosts instead of failing on the 3.11-only
+  `enum.StrEnum` import.
+
 ## 0.3.0 - 2026-08-13
 
 - Add the shared `elephant` command router with memorize, resume, help, status,

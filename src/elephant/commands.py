@@ -11,6 +11,8 @@ from elephant.kernel import Elephant
 
 COMMANDS: tuple[tuple[str, str], ...] = (
     ("memorize", "Save the freshest recoverable state for this session."),
+    ("exact <label>", "Save the full redacted chat under a durable label."),
+    ("pull <label>", "Load a labeled chat into this harness."),
     ("resume [memory-id]", "Recover the latest memory, or one selected memory."),
     ("help", "Show this command card."),
     ("status", "Show protection, freshness, source, and transcript coverage."),
@@ -72,7 +74,7 @@ class CommandRouter:
         action: str, arguments: str | Sequence[str] | None
     ) -> tuple[str, list[str]]:
         raw = action.strip()
-        for prefix in ("/elephant:", "/elephant", "$elephant", "elephant"):
+        for prefix in ("/elephant:", "/elephant", "$elephant", "@elephant", "elephant"):
             if raw.lower().startswith(prefix):
                 raw = raw[len(prefix) :].strip()
                 break
@@ -103,6 +105,47 @@ class CommandRouter:
             )
         )
         return self._ok("memorize", message, {"capsule": capsule.to_dict()})
+
+    def _do_exact(
+        self, values: list[str], *, cwd: Path, harness: str, session_id: str | None
+    ) -> dict[str, Any]:
+        if len(values) != 1:
+            raise ValueError("usage: elephant exact <label>")
+        result = self.elephant.exact(values[0], cwd=cwd, session_id=session_id)
+        capsule = result["capsule"]
+        message = "\n".join(
+            (
+                f"🐘 Exact memory saved as `{result['label']}`.",
+                "",
+                f"Source: {capsule.source_harness}",
+                f"Transcript coverage: {result['coverage']}",
+                "Protected through quota failure and session cleanup.",
+            )
+        )
+        return self._ok(
+            "exact",
+            message,
+            {**result, "capsule": capsule.to_dict()},
+        )
+
+    def _do_pull(
+        self, values: list[str], *, cwd: Path, harness: str, session_id: str | None
+    ) -> dict[str, Any]:
+        if len(values) != 1:
+            raise ValueError("usage: elephant pull <label>")
+        result = self.elephant.pull(values[0], cwd=cwd, target_harness=harness)
+        capsule = result["capsule"]
+        objective = " ".join(str(capsule["objective"]).split())[:300]
+        state = " ".join(str(capsule["current_state"]).split())[:300]
+        message = "\n".join(
+            (
+                f"🐘 Elephant restored where you left off in {result['source_harness']}.",
+                f"Label: {result['label']}",
+                f"Summary: {objective} — {state}",
+                f"Transcript coverage: {result['coverage']}",
+            )
+        )
+        return self._ok("pull", message, result)
 
     def _do_resume(
         self, values: list[str], *, cwd: Path, harness: str, session_id: str | None

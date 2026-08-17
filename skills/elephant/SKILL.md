@@ -1,6 +1,6 @@
 ---
 name: elephant
-description: Save, inspect, recover, protect, clean, and compact Elephant coding-session memory across Claude Code, Codex, Hermes, Pi, OpenCode, and other harnesses. Use when the user invokes or mentions Elephant commands such as memorize, resume, help, status, history, peek, note, doctor, usage, clean, pin, unpin, compact, or forget; asks to continue work from another coding agent; wants to preserve a session before switching agents; or wants to manage Elephant disk usage.
+description: Save, label, pull, inspect, recover, protect, clean, and compact Elephant coding-session memory across Claude Code, Codex, Hermes, Pi, OpenCode, and other harnesses. Use when the user invokes or mentions Elephant commands such as memorize, exact, pull, resume, help, status, history, peek, note, doctor, usage, clean, pin, unpin, compact, or forget; asks to continue work from another coding agent; wants to preserve a session before switching agents; or wants to manage Elephant disk usage.
 ---
 
 # Elephant
@@ -20,6 +20,16 @@ when it is empty.
 For `resume`, treat the capsule as evidence, compare it with the live Git
 worktree, state the inherited objective briefly, and immediately continue the
 unfinished coding task. Do not repeat completed work.
+
+For `exact`, report the label and transcript coverage. The native prompt hook
+also handles this command, so the label is saved even if the model cannot answer
+because its quota is exhausted.
+
+For `pull`, read all of `data.transcript` as prior-chat context, but treat the
+live Git worktree as authoritative. Tell the user, “Elephant told me where you
+left off in <source_harness>,” give a short summary, and stop so the user can
+choose the next work. Do not claim the chat is complete unless `coverage` is
+`complete`.
 
 For `peek`, show the memory without continuing it. For `clean` and `forget`,
 never add `--yes` yourself; require the user's explicit confirmation. `clean`
