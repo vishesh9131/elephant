@@ -1,6 +1,6 @@
 ---
 description: Preview or delete ancient Elephant sessions
-argument-hint: [age] [--keep N] [--yes]
+argument-hint: "[age] [--keep N] [--yes]"
 disable-model-invocation: true
 ---
 

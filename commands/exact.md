@@ -1,6 +1,6 @@
 ---
 description: Save the full redacted chat under a durable Elephant label
-argument-hint: <label>
+argument-hint: "<label>"
 disable-model-invocation: true
 ---
 

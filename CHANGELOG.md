@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 - 2026-08-17
+
+- Isolate Claude Code components from the root Agent Plugins/Copilot hook
+  manifest so Claude no longer rejects lower-case hook event names.
+
 ## 0.4.0 - 2026-08-17
 
 - Add durable `exact <label>` full-chat snapshots and cross-harness

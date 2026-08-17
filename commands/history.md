@@ -1,6 +1,6 @@
 ---
 description: List recent Elephant memories for this project
-argument-hint: [limit]
+argument-hint: "[limit]"
 disable-model-invocation: true
 ---
 

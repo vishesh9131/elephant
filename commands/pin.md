@@ -1,6 +1,6 @@
 ---
 description: Protect an Elephant session from automatic cleanup
-argument-hint: [memory-id]
+argument-hint: "[memory-id]"
 disable-model-invocation: true
 ---
 

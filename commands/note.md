@@ -1,6 +1,6 @@
 ---
 description: Add an exact user instruction to Elephant memory
-argument-hint: <message>
+argument-hint: "<message>"
 disable-model-invocation: true
 ---
 

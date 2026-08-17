@@ -1,6 +1,6 @@
 ---
 description: Preview an Elephant memory without resuming it
-argument-hint: [memory-id]
+argument-hint: "[memory-id]"
 disable-model-invocation: true
 ---
 

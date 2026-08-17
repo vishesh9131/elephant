@@ -1,6 +1,6 @@
 ---
 description: Recover an Elephant memory and continue the unfinished coding task
-argument-hint: [memory-id]
+argument-hint: "[memory-id]"
 disable-model-invocation: true
 ---
 

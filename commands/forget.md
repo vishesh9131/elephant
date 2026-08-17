@@ -1,6 +1,6 @@
 ---
 description: Permanently delete selected local Elephant memory
-argument-hint: <memory-id|session ID|project> [--yes]
+argument-hint: "<memory-id|session ID|project> [--yes]"
 disable-model-invocation: true
 ---
 

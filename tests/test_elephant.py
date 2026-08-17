@@ -436,6 +436,18 @@ class ManualCommandTests(unittest.TestCase):
 
 
 class PluginContractTests(unittest.TestCase):
+    def test_claude_marketplace_uses_isolated_hook_package(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        marketplace = json.loads(
+            (root / ".claude-plugin" / "marketplace.json").read_text()
+        )
+        source = root / marketplace["plugins"][0]["source"]
+        hooks = json.loads((source / "hooks" / "hooks.json").read_text())["hooks"]
+
+        self.assertTrue((source / ".claude-plugin" / "plugin.json").is_file())
+        self.assertIn("UserPromptSubmit", hooks)
+        self.assertNotIn("userPromptSubmitted", hooks)
+
     def test_all_json_manifests_parse(self) -> None:
         root = Path(__file__).resolve().parents[1]
         manifests = (

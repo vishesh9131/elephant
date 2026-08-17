@@ -1,6 +1,6 @@
 ---
 description: Pull a labeled Elephant chat from another harness
-argument-hint: <label>
+argument-hint: "<label>"
 ---
 
 Call `elephant_command` with action `pull`, arguments `$ARGUMENTS`, cwd

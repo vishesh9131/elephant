@@ -1,6 +1,6 @@
 ---
 description: Allow a protected Elephant session to be cleaned
-argument-hint: [memory-id]
+argument-hint: "[memory-id]"
 disable-model-invocation: true
 ---
 
