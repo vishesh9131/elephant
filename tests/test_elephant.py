@@ -61,6 +61,40 @@ class RedactionTests(unittest.TestCase):
 
 
 class HandoffTests(unittest.TestCase):
+    def test_exact_slash_command_captures_mid_session_before_mcp_call(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transcript = root / "claude-session.jsonl"
+            transcript.write_text(
+                '{"role":"user","content":"Move the NAS experiments"}\n'
+                '{"role":"assistant","content":"The move is still running"}\n'
+            )
+            elephant = Elephant(root / "elephant.db")
+            current_session = "8376c002-a050-4923-aeb7-195fb0d4363e"
+
+            handle_hook(
+                "claude-code",
+                "UserPromptExpansion",
+                {
+                    "session_id": current_session,
+                    "cwd": str(root),
+                    "transcript_path": str(transcript),
+                    "command_name": "elephant:exact",
+                    "command_args": "test12",
+                    "prompt": "/elephant:exact test12",
+                },
+                database=root / "elephant.db",
+            )
+
+            saved = CommandRouter(elephant).execute(
+                "exact", "test12", cwd=root, harness="claude-code", session_id=current_session
+            )
+            self.assertTrue(saved["ok"], saved["message"])
+            pulled = elephant.pull("test12", cwd=root, target_harness="codex")
+            self.assertEqual(pulled["source_session_id"], current_session)
+            self.assertEqual(pulled["coverage"], "complete")
+            self.assertIn("Move the NAS experiments", pulled["transcript"])
+
     def test_exact_label_survives_quota_failure_and_pulls_full_chat(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -446,6 +480,7 @@ class PluginContractTests(unittest.TestCase):
 
         self.assertTrue((source / ".claude-plugin" / "plugin.json").is_file())
         self.assertIn("UserPromptSubmit", hooks)
+        self.assertIn("UserPromptExpansion", hooks)
         self.assertNotIn("userPromptSubmitted", hooks)
 
     def test_all_json_manifests_parse(self) -> None:

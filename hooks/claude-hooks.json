@@ -23,6 +23,18 @@
         ]
       }
     ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "elephant:",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/capture.py\" claude-code UserPromptExpansion",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "hooks": [
@@ -93,4 +105,3 @@
     ]
   }
 }
-

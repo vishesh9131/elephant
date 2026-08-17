@@ -23,6 +23,7 @@ class ClaudeCodeAdapter:
     _EVENTS = {
         "SessionStart": EventKind.SESSION_STARTED,
         "UserPromptSubmit": EventKind.USER_PROMPTED,
+        "UserPromptExpansion": EventKind.USER_PROMPTED,
         "PreToolUse": EventKind.TOOL_STARTED,
         "PostToolUse": EventKind.TOOL_COMPLETED,
         "PostToolUseFailure": EventKind.TOOL_FAILED,
@@ -89,7 +90,7 @@ class ClaudeCodeAdapter:
             "hook": event_name,
             "transcript_path": raw.get("transcript_path"),
         }
-        if event_name == "UserPromptSubmit":
+        if event_name in {"UserPromptSubmit", "UserPromptExpansion"}:
             common["prompt"] = raw.get("prompt")
         elif event_name in {"PreToolUse", "PostToolUse", "PostToolUseFailure"}:
             common.update(
@@ -103,4 +104,3 @@ class ClaudeCodeAdapter:
             common["error"] = error_text(raw)
             common["failure_type"] = raw.get("failure_type")
         return {key: value for key, value in common.items() if value is not None}
-

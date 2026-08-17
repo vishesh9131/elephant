@@ -169,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.1
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.2
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -178,7 +178,7 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.4.1
+pi install git:github.com/vishesh9131/elephant@v0.4.2
 ```
 
 Requires Node.js 22.19+. Pi loads the native JavaScript extension,

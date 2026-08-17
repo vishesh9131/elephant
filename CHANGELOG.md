@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 - 2026-08-17
+
+- Capture Claude Code `UserPromptExpansion` events so `/elephant:exact <label>`
+  can save the active chat immediately after a mid-session install or reload.
+- Add a regression test proving the slash-command hook records the current
+  session and complete transcript before the MCP command runs.
+
 ## 0.4.1 - 2026-08-17
 
 - Isolate Claude Code components from the root Agent Plugins/Copilot hook
