@@ -23,7 +23,8 @@ unfinished coding task. Do not repeat completed work.
 
 For `exact`, report the label and transcript coverage. The native prompt hook
 also handles this command, so the label is saved even if the model cannot answer
-because its quota is exhausted.
+because its quota is exhausted. `snapshot` coverage is the bounded transcript
+tail captured when Elephant was first installed during an active session.
 
 For `pull`, read all of `data.transcript` as prior-chat context, but treat the
 live Git worktree as authoritative. Tell the user, “Elephant told me where you

@@ -26,7 +26,7 @@ class ElephantMCP:
                 result = {
                     "protocolVersion": requested or "2025-06-18",
                     "capabilities": {"tools": {"listChanged": False}},
-                    "serverInfo": {"name": "elephant", "version": "0.4.2"},
+                    "serverInfo": {"name": "elephant", "version": "0.4.3"},
                 }
             elif method == "ping":
                 result = {}

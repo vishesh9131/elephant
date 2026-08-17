@@ -35,13 +35,13 @@ const installOptions = [
   {
     id: "gemini",
     label: "Gemini CLI",
-    command: "gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.2",
+    command: "gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.3",
     note: "Loads Elephant's project context and command skill.",
   },
   {
     id: "pi",
     label: "Pi",
-    command: "pi install git:github.com/vishesh9131/elephant@v0.4.2",
+    command: "pi install git:github.com/vishesh9131/elephant@v0.4.3",
     note: "Requires Node.js 22.19 or newer.",
   },
 ];
@@ -56,7 +56,7 @@ const memoryItems = [
 
 const elephantCommands = [
   ["memorize", "Save the freshest recoverable state for this session."],
-  ["exact <label>", "Save the full redacted chat under a durable label."],
+  ["exact <label>", "Save a redacted chat snapshot under a durable label."],
   ["pull <label>", "Load a labeled chat into the current harness."],
   ["resume [memory-id]", "Recover the latest memory, or one selected memory."],
   ["help", "Show the command card."],
@@ -147,7 +147,7 @@ export function App() {
             </AppButton>
           </div>
           <div className="hero__meta" aria-label="Project metadata">
-            <span>V0.4.2</span><span>MIT LICENSE</span><span>LOCAL-FIRST</span>
+            <span>V0.4.3</span><span>MIT LICENSE</span><span>LOCAL-FIRST</span>
           </div>
         </div>
         <div className="hero__art" aria-label="Elephant illustration">

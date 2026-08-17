@@ -44,6 +44,8 @@ class Elephant:
         capsule: Capsule | None = None
         for event in normalized:
             safe = replace(event, payload=redact(event.payload))
+            if event_name == "UserPromptExpansion" and not self.journal.events(safe.session_id):
+                safe = replace(safe, payload={**safe.payload, "transcript_snapshot": True})
             saved = self.journal.append(safe)
             stored.append(saved)
             label = self._exact_label(saved)

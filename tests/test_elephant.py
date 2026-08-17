@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from elephant.adapters import adapter_manifest
+from elephant.artifacts import SNAPSHOT_MAX_BYTES
 from elephant.commands import CommandRouter
 from elephant.kernel import Elephant
 from elephant.mcp_stdio import ElephantMCP
@@ -66,8 +67,12 @@ class HandoffTests(unittest.TestCase):
             root = Path(directory)
             transcript = root / "claude-session.jsonl"
             transcript.write_text(
-                '{"role":"user","content":"Move the NAS experiments"}\n'
-                '{"role":"assistant","content":"The move is still running"}\n'
+                '{"role":"user","content":"old snapshot edge"}\n'
+                + "".join(
+                    json.dumps({"role": "assistant", "content": "x" * 200}) + "\n"
+                    for _ in range(1500)
+                )
+                + '{"role":"user","content":"Move the NAS experiments"}\n'
             )
             elephant = Elephant(root / "elephant.db")
             current_session = "8376c002-a050-4923-aeb7-195fb0d4363e"
@@ -92,8 +97,10 @@ class HandoffTests(unittest.TestCase):
             self.assertTrue(saved["ok"], saved["message"])
             pulled = elephant.pull("test12", cwd=root, target_harness="codex")
             self.assertEqual(pulled["source_session_id"], current_session)
-            self.assertEqual(pulled["coverage"], "complete")
+            self.assertEqual(pulled["coverage"], "snapshot")
+            self.assertLessEqual(len(pulled["transcript"].encode()), SNAPSHOT_MAX_BYTES)
             self.assertIn("Move the NAS experiments", pulled["transcript"])
+            self.assertNotIn("old snapshot edge", pulled["transcript"])
 
     def test_exact_label_survives_quota_failure_and_pulls_full_chat(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.3 - 2026-08-17
+
+- Treat the first `exact` after a mid-session install as a bounded transcript
+  snapshot instead of claiming complete coverage.
+- Keep the newest 256 KiB of redacted chat and report the snapshot limit and
+  truncation state in transcript metadata.
+
 ## 0.4.2 - 2026-08-17
 
 - Capture Claude Code `UserPromptExpansion` events so `/elephant:exact <label>`

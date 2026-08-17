@@ -11,6 +11,9 @@ from elephant.models import Event
 from elephant.redaction import redact, redact_text
 
 
+SNAPSHOT_MAX_BYTES = 256 * 1024
+
+
 def archive_transcript(events: Iterable[Event], data_dir: str | Path) -> dict[str, Any] | None:
     history = list(events)
     source = _latest_transcript(history)
@@ -20,7 +23,14 @@ def archive_transcript(events: Iterable[Event], data_dir: str | Path) -> dict[st
         source_path = None
     else:
         content = _redacted_transcript(source)
-        coverage = "complete"
+        snapshot = bool(history[-1].payload.get("transcript_snapshot"))
+        truncated = snapshot and len(content) > SNAPSHOT_MAX_BYTES
+        if truncated:
+            content = content[-SNAPSHOT_MAX_BYTES:]
+            newline = content.find(b"\n")
+            if newline >= 0:
+                content = content[newline + 1 :]
+        coverage = "snapshot" if snapshot else "complete"
         source_path = str(source)
     digest = hashlib.sha256(content).hexdigest()
     last = history[-1]
@@ -43,6 +53,8 @@ def archive_transcript(events: Iterable[Event], data_dir: str | Path) -> dict[st
         "redacted": True,
         "coverage": coverage,
         "source": source_path,
+        "snapshot_limit_bytes": SNAPSHOT_MAX_BYTES if coverage == "snapshot" else None,
+        "truncated": truncated if coverage == "snapshot" else False,
     }
 
 

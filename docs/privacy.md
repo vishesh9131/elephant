@@ -18,8 +18,9 @@ destructive operations require an explicit `--yes` confirmation; `clean` is a
 read-only preview without it. `pin` protects a session from cleanup. `compact`
 reclaims unused SQLite pages but does not logically delete memories. Transcript
 coverage is reported as `complete` only when a host exposes its transcript;
-otherwise Elephant reports an `observed` event archive rather than implying that
-unseen messages were captured.
+`snapshot` for a bounded 256 KiB tail captured after a mid-session install; and
+`observed` when Elephant only has native events. Neither bounded mode is
+described as a complete chat.
 
 Report privacy or security concerns through the repository's private security
 reporting feature or its public issue tracker.

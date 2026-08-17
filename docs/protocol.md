@@ -39,7 +39,10 @@ events rather than rejecting the entire session.
 capsule in SQLite. Native prompt hooks create the label before model execution
 and refresh it on later checkpoints, including quota failures. `pull <label>`
 returns that transcript with its source harness and coverage; consumers must not
-describe `observed` coverage as complete.
+describe `observed` or `snapshot` coverage as complete. When Elephant is first
+installed during an active Claude session, `exact` keeps the newest 256 KiB of
+the host transcript and reports `snapshot` coverage rather than copying an
+unbounded chat.
 
 ## Confidence
 
@@ -58,5 +61,5 @@ objective, last exchange, recent failures, modified files, Git identity, exact
 user notes, an event watermark, and a short recent-event window. Raw harness
 transcript formats are deliberately not the interchange contract because those
 formats can change independently. Transcript metadata says `complete` when a
-host transcript was archived and `observed` when Elephant reconstructed the
-archive from captured events.
+host transcript was fully archived, `snapshot` for the bounded first-install
+tail, and `observed` when Elephant reconstructed the archive from captured events.

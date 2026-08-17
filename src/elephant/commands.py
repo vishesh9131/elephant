@@ -11,7 +11,7 @@ from elephant.kernel import Elephant
 
 COMMANDS: tuple[tuple[str, str], ...] = (
     ("memorize", "Save the freshest recoverable state for this session."),
-    ("exact <label>", "Save the full redacted chat under a durable label."),
+    ("exact <label>", "Save a redacted chat snapshot under a durable label."),
     ("pull <label>", "Load a labeled chat into this harness."),
     ("resume [memory-id]", "Recover the latest memory, or one selected memory."),
     ("help", "Show this command card."),

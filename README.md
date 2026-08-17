@@ -169,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.2
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.3
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -178,7 +178,7 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.4.2
+pi install git:github.com/vishesh9131/elephant@v0.4.3
 ```
 
 Requires Node.js 22.19+. Pi loads the native JavaScript extension,
@@ -266,16 +266,18 @@ Codex receives the freshest capsule, compares it with the live worktree, and
 continues the unfinished objective. Codex exposes installed skills through `$`
 mentions; Claude plugin skills are namespaced as `/elephant:<command>`.
 
-For a named, full-chat handoff, use `@Elephant exact auth-fix` before switching
+For a named chat handoff, use `@Elephant exact auth-fix` before switching
 harnesses, then `@Elephant pull auth-fix` in the new one. The prompt hook saves
-the label before model execution and refreshes it on quota failure. Pull feeds
+the label before model execution and refreshes it on quota failure. If Elephant
+was installed mid-session, it safely snapshots the newest 256 KiB instead of
+copying an unbounded transcript. Pull feeds
 the redacted chat to the new harness, identifies the previous harness, and gives
 a short summary without starting work until you ask.
 
 | Command | Purpose |
 |---|---|
 | `memorize` | Force a fresh checkpoint of the current session |
-| `exact <label>` | Save the full redacted chat in SQLite under a durable label |
+| `exact <label>` | Save a redacted chat snapshot in SQLite under a durable label |
 | `pull <label>` | Feed a labeled chat to another harness and summarize the handoff |
 | `resume [memory-id]` | Recover the latest or a selected memory and continue |
 | `help` | Show the complete command card |
