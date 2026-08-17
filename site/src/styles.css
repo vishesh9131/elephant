@@ -71,7 +71,7 @@ button { color: inherit; }
 .pulse-panel { background: var(--taupe); border: 1px solid rgba(17,17,15,.06); border-radius: 24px; padding: 38px 38px 28px; }
 .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .section-kicker { margin: 0 0 14px; color: #383530; }
-.panel-heading h2, .story h2, .memory-panel h2, .layers h2, .privacy h2, .install h2 { margin: 0; font-weight: 300; letter-spacing: -.045em; line-height: 1.1; }
+.panel-heading h2, .story h2, .memory-panel h2, .commands h2, .layers h2, .privacy h2, .install h2 { margin: 0; font-weight: 300; letter-spacing: -.045em; line-height: 1.1; }
 .panel-heading h2 { font-size: clamp(28px, 3vw, 43px); }
 .pulse-legend { display: flex; gap: 24px; padding-top: 30px; font-size: 12px; }
 .pulse-legend span { display: flex; align-items: center; gap: 8px; }
@@ -103,7 +103,7 @@ button { color: inherit; }
 .harness-strip i { width: 3px; height: 3px; border-radius: 50%; background: #a8a197; }
 
 .story { padding-block: 52px 48px; }
-.story h2, .memory-panel h2, .privacy h2, .install h2 { font-size: clamp(36px, 3.35vw, 50px); }
+.story h2, .memory-panel h2, .commands h2, .privacy h2, .install h2 { font-size: clamp(36px, 3.35vw, 50px); }
 .story__intro { display: grid; grid-template-columns: 1fr 1fr; column-gap: 80px; align-items: end; }
 .story__intro .section-kicker { grid-column: 1 / -1; }
 .story__intro > p:last-child { max-width: 470px; color: var(--smoke); font-size: 14px; line-height: 1.65; margin: 0 0 6px; }
@@ -124,6 +124,19 @@ button { color: inherit; }
 .capsule-window { align-self: center; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.52); overflow: hidden; }
 .capsule-window__bar { height: 46px; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; border-bottom: 1px solid var(--line); color: var(--smoke); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
 .capsule-window pre { margin: 0; padding: 22px; color: #2f2c28; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.62; white-space: pre-wrap; }
+
+.commands { display: grid; grid-template-columns: .72fr 1.28fr; gap: 54px; padding-block: 64px; }
+.commands__intro { align-self: start; position: sticky; top: 32px; }
+.commands__intro > p:last-of-type { max-width: 360px; margin: 20px 0 24px; color: var(--smoke); font-size: 13px; line-height: 1.65; }
+.command-prefixes { display: flex; flex-wrap: wrap; gap: 8px; }
+.command-prefixes code, .command-list code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.command-prefixes code { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--taupe); font-size: 10px; }
+.command-list { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.command-list__item { min-width: 0; padding: 18px 20px 18px 0; border-bottom: 1px solid var(--line); }
+.command-list__item:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--line); }
+.command-list dt { margin: 0 0 8px; }
+.command-list dt code { color: var(--violet); font-size: 12px; overflow-wrap: anywhere; }
+.command-list dd { margin: 0; color: var(--smoke); font-size: 11px; line-height: 1.55; }
 
 .privacy { display: grid; grid-template-columns: .72fr 1.28fr; gap: 54px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 48px; }
 .privacy-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; align-items: start; }
@@ -161,7 +174,8 @@ button { color: inherit; }
   .hero__art { height: 390px; }
   .hero__art img { width: 150%; }
   .harness-strip > div { flex-wrap: wrap; justify-content: flex-start; gap: 15px 20px; }
-  .memory-panel, .privacy, .install { grid-template-columns: 1fr; gap: 48px; }
+  .memory-panel, .commands, .privacy, .install { grid-template-columns: 1fr; gap: 48px; }
+  .commands__intro { position: static; }
   .memory-panel { padding: 40px; }
   .closing { grid-template-columns: 1fr; gap: 44px; }
   .closing > div:last-child { max-width: 420px; }
@@ -200,6 +214,9 @@ button { color: inherit; }
   .capsule-window__bar { display: grid; height: auto; gap: 4px; padding-block: 12px; }
   .capsule-window pre { padding: 20px 14px; font-size: 10px; }
   .privacy { padding-block: 64px; }
+  .commands { padding-block: 64px; gap: 36px; }
+  .command-list { grid-template-columns: 1fr; }
+  .command-list__item, .command-list__item:nth-child(even) { padding: 16px 0; border-left: 0; }
   .privacy-facts { grid-template-columns: 1fr; gap: 36px; }
   .privacy-facts article { display: grid; grid-template-columns: 38px 1fr; }
   .privacy-facts h3 { margin: 2px 0 7px; }

@@ -54,6 +54,25 @@ const memoryItems = [
   ["Next action", "The smallest safe step to continue"],
 ];
 
+const elephantCommands = [
+  ["memorize", "Save the freshest recoverable state for this session."],
+  ["exact <label>", "Save the full redacted chat under a durable label."],
+  ["pull <label>", "Load a labeled chat into the current harness."],
+  ["resume [memory-id]", "Recover the latest memory, or one selected memory."],
+  ["help", "Show the command card."],
+  ["status", "Show protection, freshness, source, and transcript coverage."],
+  ["history [limit]", "List recent memories for this project."],
+  ["peek [memory-id]", "Preview what resume will inject without continuing."],
+  ["note <text>", "Record an exact, high-priority user instruction."],
+  ["doctor", "Check the database and installed capture capabilities."],
+  ["usage", "Show database and transcript disk usage."],
+  ["clean [age] [--keep N] [--yes]", "Preview or delete old sessions."],
+  ["pin [memory-id]", "Protect a memory's session from cleanup."],
+  ["unpin [memory-id]", "Allow a pinned session to be cleaned."],
+  ["compact", "Repack the database and reclaim unused space."],
+  ["forget <memory-id|session ID|project> --yes", "Delete local Elephant data."],
+];
+
 function Brand({ compact = false }) {
   return (
     <a className={`brand ${compact ? "brand--compact" : ""}`} href="#top" aria-label="Elephant home">
@@ -102,6 +121,7 @@ export function App() {
         <Brand />
         <nav className="site-nav" aria-label="Primary navigation">
           <a href="#how-it-works">How it works</a>
+          <a href="#commands">Commands</a>
           <a href="#harnesses">Harnesses</a>
           <a href="#privacy">Privacy</a>
           <a href="#install">Install</a>
@@ -227,6 +247,27 @@ export function App() {
   "next_action": "Run the integration test"
 }`}</pre>
         </div>
+      </section>
+
+      <section className="commands page-shell" id="commands" aria-labelledby="commands-title">
+        <div className="commands__intro">
+          <p className="section-kicker">THE WHOLE TOOLBOX</p>
+          <h2 id="commands-title">Every command.<br />Nothing hidden.</h2>
+          <p>Use the same action in any supported harness. Only the prefix changes.</p>
+          <div className="command-prefixes" aria-label="Command syntax by harness">
+            <code>/elephant:command</code>
+            <code>$elephant command</code>
+            <code>@Elephant command</code>
+          </div>
+        </div>
+        <dl className="command-list">
+          {elephantCommands.map(([command, description]) => (
+            <div key={command} className="command-list__item">
+              <dt><code>{command}</code></dt>
+              <dd>{description}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className="privacy page-shell" id="privacy" aria-labelledby="privacy-title">
