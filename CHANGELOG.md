@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.5 - 2026-08-18
+
+- Route the `.openclaw` compatibility skill that Codex discovers to Elephant's
+  canonical command instructions, including `exact`, `pull`, and label semantics.
+- Run Codex `exact` through the current bundled command runtime before a
+  possibly stale MCP server left running from the previous plugin version.
+- Search the normal `~/.codex` transcript store even when the plugin host
+  overrides `CODEX_HOME`.
+
 ## 0.4.4 - 2026-08-18
 
 - Let Codex `exact <label>` bootstrap a bounded snapshot of the active chat when

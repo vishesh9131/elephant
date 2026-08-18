@@ -169,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.4
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.5
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -178,7 +178,7 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.4.4
+pi install git:github.com/vishesh9131/elephant@v0.4.5
 ```
 
 Requires Node.js 22.19+. Pi loads the native JavaScript extension,
@@ -274,6 +274,10 @@ project and safely snapshots its newest 256 KiB instead of copying an unbounded
 or unrelated transcript. Pull feeds
 the redacted chat to the new harness, identifies the previous harness, and gives
 a short summary without starting work until you ask.
+
+Codex `exact` uses the current bundled runtime before a possibly older Elephant
+MCP process. This preserves the active chat after a plugin refresh without
+requiring the user to reconstruct it.
 
 | Command | Purpose |
 |---|---|

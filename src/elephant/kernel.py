@@ -271,11 +271,13 @@ class Elephant:
 
     @staticmethod
     def _active_codex_transcript(cwd: str | Path) -> tuple[str, Path] | None:
-        codex_home = Path(
-            os.environ.get("CODEX_HOME", Path.home() / ".codex")
-        ).expanduser()
-        sessions = codex_home / "sessions"
-        if not sessions.is_dir():
+        homes = [Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")]
+        default_home = Path.home() / ".codex"
+        if default_home not in homes:
+            homes.append(default_home)
+        session_roots = [home.expanduser() / "sessions" for home in homes]
+        session_roots = [root for root in session_roots if root.is_dir()]
+        if not session_roots:
             return None
         expected = Path(cwd).expanduser().resolve()
         cutoff = (
@@ -283,7 +285,12 @@ class Elephant:
             - _CODEX_ACTIVE_TRANSCRIPT_AGE.total_seconds()
         )
         candidates = sorted(
-            (path for path in sessions.rglob("rollout-*.jsonl") if path.is_file()),
+            (
+                path
+                for root in session_roots
+                for path in root.rglob("rollout-*.jsonl")
+                if path.is_file()
+            ),
             key=lambda path: path.stat().st_mtime,
             reverse=True,
         )

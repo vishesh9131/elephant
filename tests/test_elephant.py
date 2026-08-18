@@ -529,6 +529,15 @@ class ManualCommandTests(unittest.TestCase):
 
 
 class PluginContractTests(unittest.TestCase):
+    def test_openclaw_skill_routes_exact_to_the_canonical_fallback(self) -> None:
+        compatibility = Path(".openclaw/skills/elephant/SKILL.md").read_text()
+        canonical = Path("skills/elephant/SKILL.md").read_text()
+        self.assertIn("../../../skills/elephant/SKILL.md", compatibility)
+        self.assertIn("exact <label>", compatibility)
+        self.assertIn("never a session ID", compatibility)
+        self.assertIn("Do this before", canonical)
+        self.assertIn("scripts/command.py", canonical)
+
     def test_claude_marketplace_uses_isolated_hook_package(self) -> None:
         root = Path(__file__).resolve().parents[1]
         marketplace = json.loads(

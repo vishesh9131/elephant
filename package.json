@@ -1,6 +1,6 @@
 {
   "name": "elephant-agent-handoff",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Carry coding sessions between AI harnesses.",
   "keywords": ["opencode-plugin", "pi-package", "agent-skills", "handoff", "context"],
   "author": {
@@ -30,6 +30,7 @@
     "skills/**/*.md",
     "skills/**/*.py",
     "skills/**/*.yaml",
+    ".openclaw/skills/**/*.md",
     "src/**/*.py",
     ".opencode/plugins/*.mjs",
     "pi-extension/*.js",

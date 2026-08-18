@@ -10,11 +10,16 @@ that support argument substitution expose this text as `$ARGUMENTS`. Use `help`
 when it is empty.
 
 1. Determine the absolute current project directory.
-2. Call `elephant_command` with the first argument as `action`, the remaining
-   text as `arguments`, the project directory as `cwd`, and this harness name.
-3. If the tool is unavailable, execute `scripts/command.py` with the same action,
-   remaining arguments, `--cwd`, and `--harness`. Never ask the user to operate
-   Elephant from a terminal.
+2. In Codex, handle `exact` by executing `scripts/command.py` (relative to this
+   file) with `exact`, its label, `--cwd`, and `--harness codex`. Do this before
+   calling `elephant_command`: an already-running MCP process can remain on the
+   previous plugin version after a marketplace update, while this bundled
+   script is current.
+3. For other invocations, call `elephant_command` with the first argument as
+   `action`, the remaining text as `arguments`, the project directory as `cwd`,
+   and this harness name. If the tool is unavailable, execute the same bundled
+   script with the action, remaining arguments, `--cwd`, and `--harness`.
+   Never ask the user to operate Elephant from a terminal.
 4. Return the command's `message` concisely.
 
 For `resume`, treat the capsule as evidence, compare it with the live Git
