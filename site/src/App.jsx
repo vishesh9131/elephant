@@ -73,6 +73,318 @@ const elephantCommands = [
   ["forget <memory-id|session ID|project> --yes", "Delete local Elephant data."],
 ];
 
+const commandScenarios = [
+  {
+    id: "exact",
+    command: "exact <label>",
+    eyebrow: "INSTALLED MID-SESSION",
+    title: "Save the chat you are already inside.",
+    setup: "You are 47 messages into a Codex task when you install Elephant. There is no earlier Elephant memory yet.",
+    syntax: "@Elephant exact auth-refresh",
+    steps: [
+      ["1", "Choose a label", "Use 1–64 letters, numbers, dots, underscores, or hyphens."],
+      ["2", "Elephant finds this chat", "It matches the active transcript to this exact project folder."],
+      ["3", "A snapshot is pinned", "The newest 256 KiB is redacted, compressed, labeled, and protected."],
+    ],
+    result: [
+      "🐘 Exact memory saved as `auth-refresh`.",
+      "Source: codex",
+      "Transcript coverage: snapshot",
+      "Protected through quota failure and session cleanup.",
+    ],
+    tip: "The label is a name you invent—not a session ID.",
+  },
+  {
+    id: "pull",
+    command: "pull <label>",
+    eyebrow: "SWITCHING HARNESSES",
+    title: "Bring the labeled chat into Claude Code.",
+    setup: "You saved `auth-refresh` in Codex and opened the same repository in Claude Code.",
+    syntax: "/elephant:pull auth-refresh",
+    steps: [
+      ["1", "Open the same project", "Labels are scoped to the repository so unrelated chats never leak in."],
+      ["2", "Pull the label", "Elephant feeds the redacted transcript and recovery capsule to Claude."],
+      ["3", "Review the handoff", "Claude names the old harness and summarizes where the work stopped."],
+    ],
+    result: [
+      "🐘 Elephant restored where you left off in codex.",
+      "Label: auth-refresh",
+      "Summary: Fix token rotation — implementation ready for tests",
+      "Transcript coverage: snapshot",
+    ],
+    tip: "Pull restores context; you decide when the new harness starts working.",
+  },
+  {
+    id: "resume",
+    command: "resume [memory-id]",
+    eyebrow: "QUOTA ENDED",
+    title: "Continue from the freshest checkpoint.",
+    setup: "Claude Code stopped unexpectedly, but Elephant had already journaled the work.",
+    syntax: "@Elephant resume",
+    steps: [
+      ["1", "Ask for the latest", "Leave out the memory ID to recover the freshest memory for this project."],
+      ["2", "Compare live files", "The new harness checks the capsule against the current Git worktree."],
+      ["3", "Continue once", "Completed work is not repeated; the next safe action becomes the starting point."],
+    ],
+    result: [
+      "🐘 Memory restored.",
+      "From: claude-code / session-7f2c",
+      "State: implementation complete",
+      "Next: run the refresh-token integration test",
+    ],
+    tip: "Use a memory ID only when you want an older, specific checkpoint.",
+  },
+  {
+    id: "clean",
+    command: "clean [age] [--keep N]",
+    eyebrow: "STORAGE HYGIENE",
+    title: "Preview old memories before deleting anything.",
+    setup: "Elephant has months of local sessions and you want to reclaim space safely.",
+    syntax: "/elephant:clean 30d --keep 10",
+    steps: [
+      ["1", "Run a preview", "Without `--yes`, Elephant only reports what would be removed."],
+      ["2", "Check protected work", "The newest sessions and every pinned session stay untouched."],
+      ["3", "Confirm explicitly", "Repeat with `--yes` only after the preview looks correct."],
+    ],
+    result: [
+      "🐘 Cleanup preview.",
+      "Eligible sessions: 6",
+      "Pinned sessions skipped: 2",
+      "Add --yes to apply this exact cleanup plan.",
+    ],
+    tip: "Elephant never adds `--yes` for you.",
+  },
+  {
+    id: "memorize",
+    command: "memorize",
+    eyebrow: "MANUAL CHECKPOINT",
+    title: "Save the freshest recoverable state now.",
+    setup: "You reached a stable milestone and want a checkpoint before attempting a risky refactor.",
+    syntax: "/elephant:memorize",
+    steps: [
+      ["1", "Ask for a checkpoint", "No label or memory ID is required."],
+      ["2", "Elephant gathers evidence", "The objective, recent events, changed files, failures, and transcript coverage are captured."],
+      ["3", "Keep the memory ID", "Use the returned ID later when you need this specific point instead of the latest one."],
+    ],
+    result: [
+      "🐘 Memorized.",
+      "Source: claude-code · Events: 84",
+      "Modified files: 3 · Transcript coverage: observed",
+      "Memory ID: mem_7f2c",
+    ],
+    tip: "Automatic journaling continues; memorize simply forces a fresh checkpoint.",
+  },
+  {
+    id: "help",
+    command: "help",
+    eyebrow: "COMMAND DISCOVERY",
+    title: "See every command supported by this install.",
+    setup: "You remember Elephant can recover work, but not the exact command or syntax for your harness.",
+    syntax: "@Elephant help",
+    steps: [
+      ["1", "Invoke help", "Use the Elephant mention or native command prefix in your current harness."],
+      ["2", "Scan the command card", "Each available command appears with its accepted arguments."],
+      ["3", "Use the native prefix", "Claude, Codex, Hermes, and Pi display the syntax appropriate for that host."],
+    ],
+    result: [
+      "Elephant commands",
+      "memorize · exact <label> · pull <label> · resume",
+      "status · history · peek · note · doctor · usage",
+      "clean · pin · unpin · compact · forget",
+    ],
+    tip: "Help reads the version you installed, so it is the authoritative command list.",
+  },
+  {
+    id: "status",
+    command: "status",
+    eyebrow: "PROTECTION CHECK",
+    title: "Confirm that the current project is recoverable.",
+    setup: "You are about to close the harness and want confidence that Elephant has a fresh memory.",
+    syntax: "@Elephant status",
+    steps: [
+      ["1", "Check protection", "Protected means at least one recovery capsule exists for this project."],
+      ["2", "Check freshness", "Fresh tells you whether the newest capsule reflects recent activity."],
+      ["3", "Read coverage honestly", "Snapshot, observed, and unavailable are reported without pretending they mean complete."],
+    ],
+    result: [
+      "🐘 Elephant status",
+      "Protected: yes · Capsule fresh: yes",
+      "Latest source: codex",
+      "Transcript coverage: snapshot",
+    ],
+    tip: "Status reports evidence; it never invents an exact quota percentage.",
+  },
+  {
+    id: "history",
+    command: "history [limit]",
+    eyebrow: "FIND AN OLDER MEMORY",
+    title: "List recent checkpoints for this project.",
+    setup: "The latest memory is not the point you want, so you need to identify an earlier checkpoint.",
+    syntax: "$elephant history 5",
+    steps: [
+      ["1", "Choose a list length", "Leave the number out for the default ten memories."],
+      ["2", "Compare timestamps", "Each row shows its source harness, objective, creation time, and memory ID."],
+      ["3", "Copy the right ID", "Use it with peek, resume, pin, unpin, or forget."],
+    ],
+    result: [
+      "🐘 Recent Elephant memories",
+      "1. codex · 10:17 · Fix token rotation · mem_7f2c",
+      "2. claude-code · 09:42 · Reproduce expiry bug · mem_61aa",
+      "3. codex · 09:18 · Add regression test · mem_2d90",
+    ],
+    tip: "History is scoped to the current project, not every repository on your machine.",
+  },
+  {
+    id: "peek",
+    command: "peek [memory-id]",
+    eyebrow: "PREVIEW BEFORE RESUME",
+    title: "Inspect a memory without continuing it.",
+    setup: "You found two possible checkpoints and want to verify one before injecting it into the active harness.",
+    syntax: "/elephant:peek mem_61aa",
+    steps: [
+      ["1", "Select a memory", "Provide an ID, or omit it to preview the freshest capsule."],
+      ["2", "Read the evidence", "Elephant shows the objective, state, files, and recent failures."],
+      ["3", "Choose deliberately", "Resume only when the preview matches the work you intend to continue."],
+    ],
+    result: [
+      "🐘 Memory preview",
+      "Objective: Reproduce refresh-token expiry bug",
+      "Modified files: auth/session.py, tests/test_rotation.py",
+      "Failures: test expected 401 but received 200",
+    ],
+    tip: "Peek is read-only; it does not tell the harness to start working.",
+  },
+  {
+    id: "note",
+    command: "note <text>",
+    eyebrow: "PRESERVE A DECISION",
+    title: "Attach an instruction that must survive handoff.",
+    setup: "You made a constraint explicit: the database schema must not change during this fix.",
+    syntax: "/elephant:note \"Do not change the database schema\"",
+    steps: [
+      ["1", "State the instruction exactly", "Write the constraint in the words the next harness should see."],
+      ["2", "Elephant checkpoints it", "The note is stored as high-priority evidence on the current memory."],
+      ["3", "Recover it later", "Resume and pull surface the preserved instruction with the rest of the work."],
+    ],
+    result: [
+      "🐘 Noted exactly: Do not change the database schema",
+      "Memory ID: mem_83bc",
+    ],
+    tip: "Use note for decisions and constraints, not for replacing the conversation transcript.",
+  },
+  {
+    id: "doctor",
+    command: "doctor",
+    eyebrow: "DIAGNOSE THE INSTALL",
+    title: "Check whether Elephant can capture and recover.",
+    setup: "A command did not behave as expected and you want a quick health report before troubleshooting further.",
+    syntax: "@Elephant doctor",
+    steps: [
+      ["1", "Run the health check", "Elephant inspects its local database, data directory, and adapter readiness."],
+      ["2", "Read each signal", "Healthy, writable, and recoverable memory are reported separately."],
+      ["3", "Act on the failing line", "The report distinguishes storage trouble from a project that simply has no memory yet."],
+    ],
+    result: [
+      "🐘 Elephant doctor",
+      "Healthy: yes · Database: ok",
+      "Writable: yes",
+      "Recoverable memory: yes",
+    ],
+    tip: "Doctor checks Elephant itself; status checks the current project's protection.",
+  },
+  {
+    id: "usage",
+    command: "usage",
+    eyebrow: "MEASURE LOCAL STORAGE",
+    title: "See exactly how much disk space Elephant uses.",
+    setup: "You have used Elephant across several projects and want to inspect storage before cleaning anything.",
+    syntax: "@Elephant usage",
+    steps: [
+      ["1", "Measure the store", "Elephant separates database bytes from compressed transcript bytes."],
+      ["2", "Compare scopes", "The report shows this project's sessions alongside totals for all projects."],
+      ["3", "Choose maintenance", "Clean previews removable sessions; compact reclaims unused database pages afterward."],
+    ],
+    result: [
+      "🐘 Elephant storage",
+      "Total on disk: 18.6 MiB · Database: 4.2 MiB",
+      "Transcripts: 14.4 MiB",
+      "This project: 12 sessions, 31 memories, 2 pinned",
+    ],
+    tip: "Usage never deletes data—it only measures it.",
+  },
+  {
+    id: "pin",
+    command: "pin [memory-id]",
+    eyebrow: "PROTECT IMPORTANT WORK",
+    title: "Exclude a session from automatic cleanup.",
+    setup: "A successful migration session is valuable long-term, even though it will eventually become old.",
+    syntax: "/elephant:pin mem_7f2c",
+    steps: [
+      ["1", "Choose the memory", "Provide its ID, or omit it to select the latest capsule."],
+      ["2", "Elephant resolves the session", "Protection applies to the complete source session, not just one capsule."],
+      ["3", "Clean safely", "Future cleanup previews and deletions skip that pinned session."],
+    ],
+    result: [
+      "🐘 Pinned session session-7f2c.",
+      "Cleanup will leave it alone.",
+    ],
+    tip: "An exact label is pinned automatically; pin is useful for ordinary memories.",
+  },
+  {
+    id: "unpin",
+    command: "unpin [memory-id]",
+    eyebrow: "REMOVE PROTECTION",
+    title: "Allow an old session to be cleaned again.",
+    setup: "The migration is finished and backed up, so its old Elephant session no longer needs permanent protection.",
+    syntax: "/elephant:unpin mem_7f2c",
+    steps: [
+      ["1", "Select the protected memory", "Elephant resolves its source session from the memory ID."],
+      ["2", "Remove the pin", "No transcript or capsule is deleted by this command."],
+      ["3", "Preview cleanup later", "The session becomes eligible only when it also meets the age and retention rules."],
+    ],
+    result: [
+      "🐘 Unpinned: session session-7f2c.",
+    ],
+    tip: "Unpin changes cleanup eligibility; it does not erase the memory.",
+  },
+  {
+    id: "compact",
+    command: "compact",
+    eyebrow: "RECLAIM DATABASE SPACE",
+    title: "Repack SQLite after old memories are removed.",
+    setup: "You completed a confirmed cleanup and want the database file to release its unused pages.",
+    syntax: "@Elephant compact",
+    steps: [
+      ["1", "Clean first if needed", "Compact does not decide which sessions should be deleted."],
+      ["2", "Repack the database", "SQLite rewrites its internal pages without changing the remaining memories."],
+      ["3", "Review the savings", "Elephant reports the size before, after, and reclaimed."],
+    ],
+    result: [
+      "🐘 Database compacted.",
+      "Before: 9.8 MiB; after: 4.2 MiB; reclaimed: 5.6 MiB.",
+    ],
+    tip: "Compact is safe for retained memories, but it only helps after unused pages exist.",
+  },
+  {
+    id: "forget",
+    command: "forget <target> --yes",
+    eyebrow: "PERMANENT DELETION",
+    title: "Delete one memory, one session, or this project.",
+    setup: "A test session contains context you intentionally no longer want stored locally.",
+    syntax: "/elephant:forget mem_test91",
+    steps: [
+      ["1", "Start without confirmation", "Elephant warns that deletion is permanent and changes nothing."],
+      ["2", "Verify the target", "Choose a memory ID, a named session, or `project` for the current repository."],
+      ["3", "Repeat with --yes", "Only your explicit confirmation allows the deletion to run."],
+    ],
+    result: [
+      "Elephant will permanently delete local memory.",
+      "Repeat with --yes to confirm.",
+    ],
+    tip: "Always read the target twice; forgotten local memory cannot be recovered by Elephant.",
+  },
+];
+
 function Brand({ compact = false }) {
   return (
     <a className={`brand ${compact ? "brand--compact" : ""}`} href="#top" aria-label="Elephant home">
@@ -94,6 +406,7 @@ function AppButton({ href, children, secondary = false, className = "" }) {
 
 export function App() {
   const [activeInstall, setActiveInstall] = useState(installOptions[0]);
+  const [activeScenario, setActiveScenario] = useState(commandScenarios[0]);
   const [copied, setCopied] = useState(false);
 
   async function copyInstall() {
@@ -121,7 +434,7 @@ export function App() {
         <Brand />
         <nav className="site-nav" aria-label="Primary navigation">
           <a href="#how-it-works">How it works</a>
-          <a href="#commands">Commands</a>
+          <a href="#command-lab">Try commands</a>
           <a href="#harnesses">Harnesses</a>
           <a href="#privacy">Privacy</a>
           <a href="#install">Install</a>
@@ -247,6 +560,63 @@ export function App() {
   "next_action": "Run the integration test"
 }`}</pre>
         </div>
+      </section>
+
+      <section className="command-lab page-shell" id="command-lab" aria-labelledby="command-lab-title">
+        <div className="command-lab__heading">
+          <div>
+            <p className="section-kicker">LEARN BY DOING</p>
+            <h2 id="command-lab-title">Pick a moment.<br />See what Elephant does.</h2>
+          </div>
+          <p>Every walkthrough starts with a real situation, shows exactly what to type, and explains the response line by line.</p>
+        </div>
+
+        <div className="scenario-picker" role="tablist" aria-label="Choose an Elephant command scenario">
+          {commandScenarios.map((scenario) => (
+            <button
+              key={scenario.id}
+              type="button"
+              role="tab"
+              aria-selected={activeScenario.id === scenario.id}
+              className={activeScenario.id === scenario.id ? "is-active" : ""}
+              onClick={() => setActiveScenario(scenario)}
+            >
+              <span>{scenario.eyebrow}</span>
+              <code>{scenario.command}</code>
+            </button>
+          ))}
+        </div>
+
+        <div className="scenario-stage">
+          <div className="scenario-story">
+            <p className="scenario-story__eyebrow"><span className="signal signal--orange" /> {activeScenario.eyebrow}</p>
+            <h3>{activeScenario.title}</h3>
+            <p className="scenario-story__setup">{activeScenario.setup}</p>
+            <ol className="scenario-steps">
+              {activeScenario.steps.map(([number, title, copy]) => (
+                <li key={number}>
+                  <span>{number}</span>
+                  <div><strong>{title}</strong><p>{copy}</p></div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="scenario-terminal" aria-live="polite">
+            <div className="scenario-terminal__bar">
+              <span><i /><i /><i /></span>
+              <small>interactive example · no command is actually run</small>
+            </div>
+            <div className="scenario-terminal__body">
+              <p className="terminal-context">YOU TYPE</p>
+              <pre className="terminal-command"><span>›</span> {activeScenario.syntax}</pre>
+              <p className="terminal-context">ELEPHANT REPLIES</p>
+              <pre className="terminal-result">{activeScenario.result.join("\n")}</pre>
+              <div className="terminal-tip"><strong>Remember</strong><span>{activeScenario.tip}</span></div>
+            </div>
+          </div>
+        </div>
+        <p className="command-lab__demo-note">All 16 commands include a real situation, exact syntax, expected response, and the safety detail that matters.</p>
       </section>
 
       <section className="commands page-shell" id="commands" aria-labelledby="commands-title">
