@@ -111,7 +111,9 @@ class CommandRouter:
     ) -> dict[str, Any]:
         if len(values) != 1:
             raise ValueError("usage: elephant exact <label>")
-        result = self.elephant.exact(values[0], cwd=cwd, session_id=session_id)
+        result = self.elephant.exact(
+            values[0], cwd=cwd, session_id=session_id, harness=harness
+        )
         capsule = result["capsule"]
         message = "\n".join(
             (

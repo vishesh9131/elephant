@@ -169,7 +169,7 @@ nine Copilot CLI plugin lifecycle events and provides the `resume` skill.
 ### Gemini CLI
 
 ```bash
-gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.3
+gemini extensions install https://github.com/vishesh9131/elephant --ref=v0.4.4
 ```
 
 Gemini loads Elephant's project context and `resume` skill. The public repo is
@@ -178,7 +178,7 @@ tagged for Gemini's extension gallery crawler.
 ### Pi
 
 ```bash
-pi install git:github.com/vishesh9131/elephant@v0.4.3
+pi install git:github.com/vishesh9131/elephant@v0.4.4
 ```
 
 Requires Node.js 22.19+. Pi loads the native JavaScript extension,
@@ -269,8 +269,9 @@ mentions; Claude plugin skills are namespaced as `/elephant:<command>`.
 For a named chat handoff, use `@Elephant exact auth-fix` before switching
 harnesses, then `@Elephant pull auth-fix` in the new one. The prompt hook saves
 the label before model execution and refreshes it on quota failure. If Elephant
-was installed mid-session, it safely snapshots the newest 256 KiB instead of
-copying an unbounded transcript. Pull feeds
+was installed mid-session, it finds only the active chat for the exact current
+project and safely snapshots its newest 256 KiB instead of copying an unbounded
+or unrelated transcript. Pull feeds
 the redacted chat to the new harness, identifies the previous harness, and gives
 a short summary without starting work until you ask.
 

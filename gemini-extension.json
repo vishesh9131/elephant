@@ -1,6 +1,6 @@
 {
   "name": "elephant",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Carry coding sessions between AI harnesses.",
   "contextFileName": "AGENTS.md"
 }

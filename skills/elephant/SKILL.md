@@ -21,10 +21,13 @@ For `resume`, treat the capsule as evidence, compare it with the live Git
 worktree, state the inherited objective briefly, and immediately continue the
 unfinished coding task. Do not repeat completed work.
 
-For `exact`, report the label and transcript coverage. The native prompt hook
-also handles this command, so the label is saved even if the model cannot answer
-because its quota is exhausted. `snapshot` coverage is the bounded transcript
-tail captured when Elephant was first installed during an active session.
+For `exact`, treat its argument as an opaque user-chosen label, never as a
+session ID. Report that label and the transcript coverage exactly as returned by
+the tool. Native prompt hooks also handle this command, so the label is saved
+even if the model cannot answer because its quota is exhausted. In Codex, the
+tool can bootstrap the active project chat when Elephant was just installed and
+its hooks have not captured a turn yet. `snapshot` coverage is that bounded
+transcript tail; do not describe it as a complete chat.
 
 For `pull`, read all of `data.transcript` as prior-chat context, but treat the
 live Git worktree as authoritative. Tell the user, “Elephant told me where you

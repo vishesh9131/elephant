@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 import gzip
+import json
 import os
 from pathlib import Path
 import re
@@ -17,6 +18,9 @@ from elephant.models import Capsule, Event, EventKind, utc_now
 from elephant.project import project_id
 from elephant.redaction import redact
 from elephant.store import Journal
+
+
+_CODEX_ACTIVE_TRANSCRIPT_AGE = timedelta(minutes=5)
 
 
 class Elephant:
@@ -193,9 +197,17 @@ class Elephant:
         *,
         cwd: str | Path,
         session_id: str | None = None,
+        harness: str | None = None,
     ) -> dict[str, Any]:
         normalized = self._label(label)
-        capsule = self.checkpoint_latest(cwd=cwd, session_id=session_id)
+        selected = session_id
+        if not selected and harness == "codex":
+            selected = self._bootstrap_codex_snapshot(cwd)
+            if selected is None:
+                selected = self._recent_codex_session(cwd)
+            if selected is None:
+                raise LookupError("no active Codex session exists for this project")
+        capsule = self.checkpoint_latest(cwd=cwd, session_id=selected)
         existing = self.journal.labeled_memory(capsule.project_id, normalized)
         if existing and existing["source_session_id"] != capsule.source_session_id:
             raise ValueError(f"label already belongs to another session: {normalized}")
@@ -206,6 +218,100 @@ class Elephant:
             "coverage": str(capsule.transcript.get("coverage") or "unavailable"),
             "capsule": capsule,
         }
+
+    def _bootstrap_codex_snapshot(self, cwd: str | Path) -> str | None:
+        active = self._active_codex_transcript(cwd)
+        if active is None:
+            return None
+        session_id, transcript = active
+        events = self.journal.events(session_id)
+        started = any(event.kind == EventKind.SESSION_STARTED for event in events)
+        linked = any(
+            str(event.payload.get("transcript_path") or "") == str(transcript)
+            for event in events
+        )
+        if not started or not linked:
+            self.journal.append(
+                Event(
+                    kind=EventKind.USER_PROMPTED,
+                    harness="codex",
+                    session_id=session_id,
+                    project_id=project_id(cwd),
+                    payload={
+                        "transcript_path": str(transcript),
+                        "transcript_snapshot": not started,
+                    },
+                    source="mcp-snapshot",
+                    cwd=str(Path(cwd).expanduser().resolve()),
+                )
+            )
+        return session_id
+
+    def _recent_codex_session(self, cwd: str | Path) -> str | None:
+        identity = project_id(cwd)
+        expected = Path(cwd).expanduser().resolve()
+        cutoff = datetime.now(timezone.utc) - _CODEX_ACTIVE_TRANSCRIPT_AGE
+        for session_id in self.journal.sessions_for_project(identity):
+            events = self.journal.events(session_id)
+            if not events:
+                continue
+            latest = events[-1]
+            try:
+                timestamp = datetime.fromisoformat(latest.timestamp)
+            except (TypeError, ValueError):
+                continue
+            if (
+                latest.harness == "codex"
+                and timestamp >= cutoff
+                and latest.cwd
+                and Path(latest.cwd).expanduser().resolve() == expected
+            ):
+                return session_id
+        return None
+
+    @staticmethod
+    def _active_codex_transcript(cwd: str | Path) -> tuple[str, Path] | None:
+        codex_home = Path(
+            os.environ.get("CODEX_HOME", Path.home() / ".codex")
+        ).expanduser()
+        sessions = codex_home / "sessions"
+        if not sessions.is_dir():
+            return None
+        expected = Path(cwd).expanduser().resolve()
+        cutoff = (
+            datetime.now(timezone.utc).timestamp()
+            - _CODEX_ACTIVE_TRANSCRIPT_AGE.total_seconds()
+        )
+        candidates = sorted(
+            (path for path in sessions.rglob("rollout-*.jsonl") if path.is_file()),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True,
+        )
+        for transcript in candidates:
+            if transcript.stat().st_mtime < cutoff:
+                break
+            try:
+                with transcript.open("r", encoding="utf-8", errors="replace") as stream:
+                    for _ in range(20):
+                        line = stream.readline()
+                        if not line:
+                            break
+                        value = json.loads(line)
+                        if value.get("type") != "session_meta":
+                            continue
+                        payload = value.get("payload") or {}
+                        recorded_cwd = payload.get("cwd")
+                        session_id = payload.get("id")
+                        if (
+                            recorded_cwd
+                            and session_id
+                            and Path(str(recorded_cwd)).expanduser().resolve() == expected
+                        ):
+                            return str(session_id), transcript
+                        break
+            except (OSError, ValueError, TypeError):
+                continue
+        return None
 
     def pull(
         self,

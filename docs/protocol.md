@@ -40,9 +40,11 @@ capsule in SQLite. Native prompt hooks create the label before model execution
 and refresh it on later checkpoints, including quota failures. `pull <label>`
 returns that transcript with its source harness and coverage; consumers must not
 describe `observed` or `snapshot` coverage as complete. When Elephant is first
-installed during an active Claude session, `exact` keeps the newest 256 KiB of
-the host transcript and reports `snapshot` coverage rather than copying an
-unbounded chat.
+installed during an active Claude or Codex session, `exact` keeps the newest
+256 KiB of the host transcript and reports `snapshot` coverage rather than
+copying an unbounded chat. Codex discovery requires an active transcript whose
+recorded working directory exactly matches the current project; it never falls
+back to another project's session.
 
 ## Confidence
 

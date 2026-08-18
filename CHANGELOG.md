@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4 - 2026-08-18
+
+- Let Codex `exact <label>` bootstrap a bounded snapshot of the active chat when
+  Elephant was installed before its lifecycle hooks could journal the session.
+- Match Codex transcripts by exact project working directory and recent activity
+  so a label can never attach to an older or unrelated chat.
+
 ## 0.4.3 - 2026-08-17
 
 - Treat the first `exact` after a mid-session install as a bounded transcript

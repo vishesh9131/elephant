@@ -8,6 +8,7 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from elephant.adapters import adapter_manifest
 from elephant.artifacts import SNAPSHOT_MAX_BYTES
@@ -62,6 +63,57 @@ class RedactionTests(unittest.TestCase):
 
 
 class HandoffTests(unittest.TestCase):
+    def test_codex_exact_bootstraps_active_chat_after_mid_session_install(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            project = root / "project"
+            project.mkdir()
+            other = root / "other"
+            other.mkdir()
+            sessions = root / "codex" / "sessions" / "2026" / "08" / "18"
+            sessions.mkdir(parents=True)
+            current = sessions / "rollout-current.jsonl"
+            current.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {"id": "codex-current", "cwd": str(project)},
+                    }
+                )
+                + "\n"
+                + json.dumps(
+                    {
+                        "type": "response_item",
+                        "payload": {"role": "user", "content": "Finish the payment retry"},
+                    }
+                )
+                + "\n"
+            )
+            unrelated = sessions / "rollout-unrelated.jsonl"
+            unrelated.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {"id": "codex-other", "cwd": str(other)},
+                    }
+                )
+                + "\n"
+            )
+            unrelated.touch()
+
+            elephant = Elephant(root / "elephant.db")
+            with patch.dict("os.environ", {"CODEX_HOME": str(root / "codex")}):
+                saved = CommandRouter(elephant).execute(
+                    "exact", "1298", cwd=project, harness="codex"
+                )
+
+            self.assertTrue(saved["ok"], saved["message"])
+            self.assertEqual(saved["data"]["label"], "1298")
+            self.assertEqual(saved["data"]["capsule"]["source_session_id"], "codex-current")
+            self.assertEqual(saved["data"]["coverage"], "snapshot")
+            pulled = elephant.pull("1298", cwd=project, target_harness="claude-code")
+            self.assertIn("Finish the payment retry", pulled["transcript"])
+
     def test_exact_slash_command_captures_mid_session_before_mcp_call(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
